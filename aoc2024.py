@@ -1,8 +1,8 @@
 import sys
-from puzzles import day1
+from puzzles import day1, day2
 
 def readInput(day):
-    with open(f"puzzles/day{day}.txt", "r+") as dataFile:
+    with open(f"puzzles/data/day{day}.txt", "r+") as dataFile:
         print(f"--- DAY {day} --- ")
         print("Reading data from a file")
         return dataFile.readlines()
@@ -13,7 +13,9 @@ def runPart(day, part, input):
     match day:
         case "1": 
            day1.executePartOne(input) if part == 1 else day1.executePartTwo(input)
-           
+        case "2": 
+           day2.executePartOne(input) if part == 1 else day2.executePartTwo(input)
+
 
 
 def main(argv):
