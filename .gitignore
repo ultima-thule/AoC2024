@@ -1,0 +1,11 @@
+__pychache__
+
+.mypy_cache/
+
+.vscode
+.idea
+
+.venv
+venv
+
+.DS_Store
