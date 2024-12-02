@@ -74,5 +74,4 @@ def executePartTwo(input: list[str]) -> None:
         if safe:
             count += 1
 
-
     print(f"Solved 2: {count}")
