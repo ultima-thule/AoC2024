@@ -1,5 +1,4 @@
 import sys
-from puzzles import day1, day2
 
 def readInput(day):
     with open(f"puzzles/data/day{day}.txt", "r+") as dataFile:
@@ -10,17 +9,18 @@ def readInput(day):
 def runPart(day, part, input):
     print(f"Executing part {part}")
 
-    match day:
-        case "1": 
-           day1.executePartOne(input) if part == 1 else day1.executePartTwo(input)
-        case "2": 
-           day2.executePartOne(input) if part == 1 else day2.executePartTwo(input)
+    fncPartOne = 'executePartOne'
+    fncPartTwo = 'executePartTwo'
+    importlib = __import__('importlib')
+    mod = importlib.import_module(f"puzzles.day{day}")
 
+    funcOne = getattr(mod, fncPartOne)
+    funcTwo = getattr(mod, fncPartTwo)
 
+    funcOne(input) if part == 1 else funcTwo(input)
 
 def main(argv):
     input = readInput(argv[0])
-    # print(data)
     
     runPart(argv[0], 1, input)
     runPart(argv[0], 2, input)
