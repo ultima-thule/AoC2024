@@ -1,50 +1,34 @@
 import re
 
-def extract_data(input: list[str]):
-    '''Extract and transform text data'''
-    
+def calculate(line: str) -> int:
     pattern = r'mul\(([\d]+),([\d]+)\)'
-
-    for line in input:
-        mul = re.findall(pattern, line)
-        for m in mul:
-            yield m
-
-
-def slice_data(input: list[str]):
-    pattern1 = r'do\(\)(.+?)don\'t\(\)'
-
-    joined_line = "".join([x.strip() for x in input])
-    joined_line = "do()" + joined_line.strip() + "don't()"
+    mul = re.findall(pattern, line)
     
-    print (f"====> joined: {joined_line}")
-    match = re.findall(pattern1, joined_line)
-    print(match)
+    count = 0
+    for m in mul:
+        count += int(m[0]) * int(m[1])   
 
-    for t in match:
-        t = "do()" + t + "do()"
-        print (f"\n\n==> match: {t}")
-
-        pattern3 = r'mul\(([\d]+),([\d]+)\)'
-        mul = re.findall(pattern3, t)
-        for m in mul:
-            print(f"found: {m} {m[0]}*{m[1]}")
-            yield m
-    
+    return count
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
-    for m in extract_data(input):
-        count += int(m[0]) * int(m[1])
+    for line in input:
+        count += calculate(line)
 
     print(f"Solved 1: {count}")
 
 
-def execute_part_two(input: list[str]) -> None:
-    count = 0
+def execute_part_two(input: list[str]) -> None:  
 
-    for m in slice_data(input):
-        count += int(m[0]) * int(m[1])   
+    joined_line = "do()" + "".join([x.strip() for x in input]) + "don't()"
+
+    pattern = r'do\(\)(.+?)don\'t\(\)'
+    match = re.findall(pattern, joined_line)
+
+    count = 0
+    for t in match:
+        t = "do()" + t + "do()"
+        count += calculate(t)
 
     print(f"Solved 2: {count}")
