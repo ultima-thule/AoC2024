@@ -11,26 +11,63 @@ def extractData(input: list[str]):
         for m in mul:
             # print(f"found: {m} {m[0]}*{m[1]}")
             yield m
-            
+
+def scanLine (s: str):
+    started = False
+    match = ""
+    temp = ""
+
+    s = "do()" + s.strip()
+    print(f"========\nline: {s}\n")
+
+    for i in range(0, len(s)):
+        if s[i:].startswith("do()"):
+            if not started:
+                if temp != "":
+                    match += temp
+            if started:
+                match = ""
+            started = True
+            print(f"\n==> found {s[i:]}")
+            match += s[i]
+        elif s[i:].startswith("don't()"):
+            started = False
+            temp += s[i]
+        else:
+            if started:
+               match += s[i] 
+            else:
+                temp += s[i]
+
+
 
 def sliceData(input: list[str]):
+
+    # print(input)
 
     pattern1 = r'do\(\)(.+?)don\'t\(\)'
 
     for l in input:
-        print (f"=> line: {l}")
+        # print (f"====> line: {l}")
         l = "do()" + l.strip() + "don't()"
-        print (f"==> line: {l}")
+        # print (f"====> line: {l}")
         match = re.findall(pattern1, l)
         print(match)
 
         for t in match:
-            print (f"=> match: {t}")
-            pattern2 = r'mul\(([\d]+),([\d]+)\)'
-            mul = re.findall(pattern2, t)
-            for m in mul:
-                print(f"found: {m} {m[0]}*{m[1]}")
-                yield m
+            t = "do()" + t + "do()"
+            # print (f"\n\n==> match: {t}")
+
+            pattern2 = r'.*do\(\)(.+?)do\(\)$'
+            dos = re.findall(pattern2, t)
+            for d in dos:
+                # print(f"\n=> found: {d}")
+
+                pattern3 = r'mul\(([\d]+),([\d]+)\)'
+                mul = re.findall(pattern3, d)
+                for m in mul:
+                    # print(f"found: {m} {m[0]}*{m[1]}")
+                    yield m
 
 
 def executePartOne(input: list[str]) -> None:
@@ -46,8 +83,11 @@ def executePartOne(input: list[str]) -> None:
 def executePartTwo(input: list[str]) -> None:
     count = 0
 
-    for m in sliceData(input):
-        count += int(m[0]) * int(m[1])
-        pass   
+    # sliceData(input)
+    scanLine(input[0])
+
+    # for m in sliceData(input):
+    #     count += int(m[0]) * int(m[1])
+    #     pass   
 
     print(f"Solved 2: {count}")
