@@ -47,28 +47,32 @@ def sliceData(input: list[str]):
 
     pattern1 = r'do\(\)(.+?)don\'t\(\)'
 
+    joinedString = ""
+
     for l in input:
-        # print (f"====> line: {l}")
-        l = "do()" + l.strip() + "don't()"
-        # print (f"====> line: {l}")
-        match = re.findall(pattern1, l)
-        print(match)
+        joinedString += l.strip()
 
-        for t in match:
-            t = "do()" + t + "do()"
-            # print (f"\n\n==> match: {t}")
+    # print (f"====> line: {l}")
+    joinedString = "do()" + joinedString.strip() + "don't()"
+    print (f"====> joined: {joinedString}")
+    match = re.findall(pattern1, joinedString)
+    print(match)
 
-            pattern2 = r'.*do\(\)(.+?)do\(\)$'
-            dos = re.findall(pattern2, t)
-            for d in dos:
-                # print(f"\n=> found: {d}")
+    for t in match:
+        t = "do()" + t + "do()"
+        print (f"\n\n==> match: {t}")
 
-                pattern3 = r'mul\(([\d]+),([\d]+)\)'
-                mul = re.findall(pattern3, d)
-                for m in mul:
-                    # print(f"found: {m} {m[0]}*{m[1]}")
-                    yield m
+        # pattern2 = r'.*do\(\)(.+?)do\(\)$'
+        # dos = re.findall(pattern2, t)
+        # for d in dos:
+        #     print(f"\n=> found: {d}")
 
+        pattern3 = r'mul\(([\d]+),([\d]+)\)'
+        mul = re.findall(pattern3, t)
+        for m in mul:
+            print(f"found: {m} {m[0]}*{m[1]}")
+            yield m
+    
 
 def executePartOne(input: list[str]) -> None:
     count = 0
@@ -84,10 +88,10 @@ def executePartTwo(input: list[str]) -> None:
     count = 0
 
     # sliceData(input)
-    scanLine(input[0])
+    # scanLine(input[0])
 
-    # for m in sliceData(input):
-    #     count += int(m[0]) * int(m[1])
-    #     pass   
+    for m in sliceData(input):
+        count += int(m[0]) * int(m[1])
+        pass   
 
     print(f"Solved 2: {count}")
