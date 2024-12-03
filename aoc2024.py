@@ -1,29 +1,29 @@
 import sys
 
-def readInput(day):
+def read_input(day):
     with open(f"puzzles/data/day{day}.txt", "r+") as dataFile:
         print(f"--- DAY {day} --- ")
         print("Reading data from a file")
         return dataFile.readlines()
 
-def runPart(day, part, input):
+def run_part(day, part, input):
     print(f"Executing part {part}")
 
-    fncPartOne = 'executePartOne'
-    fncPartTwo = 'executePartTwo'
+    fnc_part_one = 'execute_part_one'
+    fnc_part_two = 'execute_part_two'
     importlib = __import__('importlib')
     mod = importlib.import_module(f"puzzles.day{day}")
 
-    funcOne = getattr(mod, fncPartOne)
-    funcTwo = getattr(mod, fncPartTwo)
+    func_one = getattr(mod, fnc_part_one)
+    func_two = getattr(mod, fnc_part_two)
 
-    funcOne(input) if part == 1 else funcTwo(input)
+    func_one(input) if part == 1 else func_two(input)
 
 def main(argv):
-    input = readInput(argv[0])
+    input = read_input(argv[0])
     
-    runPart(argv[0], 1, input)
-    runPart(argv[0], 2, input)
+    run_part(argv[0], 1, input)
+    run_part(argv[0], 2, input)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

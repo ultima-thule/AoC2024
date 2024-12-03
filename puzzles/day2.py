@@ -1,12 +1,11 @@
-def extractData(input: list[str]):
+def extract_data(input: list[str]):
     '''Extract and transform text data'''
-    data = []
-    for l in input:
-        lst = [int(x) for x in l.split()]
+    for line in input:
+        lst = [int(x) for x in line.split()]
         yield lst
 
 
-def signOf(number: int):
+def sign_of(number: int):
     '''Calculate mathematical sign of number'''
     if number > 0:
         return 1
@@ -16,59 +15,59 @@ def signOf(number: int):
         return 0
 
 
-def isDiffAllowed(diff: int) -> bool:
+def is_diff_allowed(diff: int) -> bool:
     '''Determine if the difference is allowed'''
     return (abs(diff) >= 1 and abs(diff) <= 3)
 
 
-def areAllSameDir(sumOfDirs: int, report: list[int]) -> bool:
+def are_all_same_dir(sum_of_dirs: int, report: list[int]) -> bool:
     ''' abs of summed up direction signs should be equal to length of report - 1'''
-    return (abs(sumOfDirs) == len(report)-1)
+    return (abs(sum_of_dirs) == len(report)-1)
 
 
-def isSafeReport(report: list[int]) -> bool:
+def is_safe_report(report: list[int]) -> bool:
     '''Determine whether a single report is safe'''
     ret = True
-    sumOfDirs = 0
+    sum_of_vectors = 0
 
     for i in range(0, len(report)-1):
         # compare pairs of numbers
         diff = report[i] - report[i+1]
         # determine whether direction is decreasing or increasing
-        dir = signOf(diff)
+        vector = sign_of(diff)
         # check if difference is allowed and direction is either increasing or decreasing
-        ret &= isDiffAllowed(diff) & (dir != 0)
+        ret &= is_diff_allowed(diff) & (dir != 0)
         # sum direction signs
-        sumOfDirs += dir
+        sum_of_vectors += vector
 
     # check if all directions were increasing or all were decreasing
-    return ret & areAllSameDir(sumOfDirs, report)
+    return ret & are_all_same_dir(sum_of_vectors, report)
 
 
-def alteredReports(report: list[int]):
+def altered_reports(report: list[int]):
     '''Generate all variant of given list with one element removed'''
     for i in range(len(report)):
         yield report[:i] + report[i+1:]
 
 
-def executePartOne(input: list[str]) -> None:
+def execute_part_one(input: list[str]) -> None:
     count = 0
 
-    for l in extractData(input):
-        if isSafeReport(l):
+    for line in extract_data(input):
+        if is_safe_report(line):
             count += 1
 
     print(f"Solved 1: {count}")
 
 
-def executePartTwo(input: list[str]) -> None:
+def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    for l in extractData(input):
-        safe = isSafeReport(l)
+    for line in extract_data(input):
+        safe = is_safe_report(line)
         if not safe:
-            for a in alteredReports(l):
-                if isSafeReport(a):
+            for a in altered_reports(line):
+                if is_safe_report(a):
                     safe = True
                     break
         if safe:

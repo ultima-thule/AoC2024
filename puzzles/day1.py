@@ -1,32 +1,32 @@
-def extractData(input: list[str]) -> tuple[list[int], list[int]]:
+def extract_data(input: list[str]) -> tuple[list[int], list[int]]:
     # print(input)
     # extract and transform data
     data1 = []
     data2 = []
-    for l in input:
-        x = l.split()
+    for line in input:
+        x = line.split()
         data1.append(int(x[0]))
         data2.append(int(x[1]))
 
     return data1, data2
 
-def executePartOne(input: list[str]) -> None:
-    data1, data2 = extractData(input)
+def execute_part_one(input: list[str]) -> None:
+    data_1, data_2 = extract_data(input)
 
     # sort both lists asc
-    data1.sort()
-    data2.sort()
+    data_1.sort()
+    data_2.sort()
 
     # calculate absolute distance and add to sum
-    sum = 0
-    for i in range(0, len(data1)):
-        sum += abs(data1[i] - data2[i])
+    total = 0
+    for i in range(0, len(data_1)):
+        total += abs(data_1[i] - data_2[i])
 
-    print(f"Solved 1: {sum}")
+    print(f"Solved 1: {total}")
 
 
-def executePartTwo(input: list[str]) -> None:
-    data1, data2 = extractData(input)
+def execute_part_two(input: list[str]) -> None:
+    data1, data2 = extract_data(input)
 
     # calculate no of occurences in second list
     dict = {}
@@ -35,8 +35,8 @@ def executePartTwo(input: list[str]) -> None:
     # print(dict)
 
     #calculate score for first list based on occurrences in second list
-    sum = 0
+    total = 0
     for i in data1:
-        sum += (i * dict[i] if i in dict else 0)
+        total += (i * dict[i] if i in dict else 0)
 
-    print(f"Solved 2: {sum}")
+    print(f"Solved 2: {total}")
