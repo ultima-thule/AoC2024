@@ -21,7 +21,7 @@ def validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, 
 def check_uni(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
     if data[y][x] == 'X' and data[y+incr_y][x+incr_x] == 'M' and data[y+2*incr_y][x+2*incr_x] == 'A' and data[y+3*incr_y][x+3*incr_x] == 'S':
         return 1
-    
+
     return 0
 
 
@@ -33,6 +33,7 @@ def check_all(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
 
     if not validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right):
         return 0
+
     return check_uni(data, y, x, incr_y, incr_x) 
 
 def check_xmas(data, y: int, x: int) -> int:
