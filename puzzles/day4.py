@@ -4,7 +4,7 @@ def extract_data(input: list[str]):
     for i in range (0, len(input)):
         data.append([*input[i].strip()])
 
-    print(data)
+    # print(data)
     return data
 
 def check_right(data, row_nr: int, x: int) -> int:
@@ -147,6 +147,28 @@ def check_diag_up_left(data, row_nr: int, x: int) -> int:
     
     return 0
 
+def check_xmas(data, row_nr: int, x: int) -> int:
+    min_x = 0
+    max_x = len(data[0])
+    min_y = 0
+    max_y = len(data)
+
+    if row_nr + 1 >= max_y or row_nr - 1 < min_y:
+        return 0
+    if x - 1 < min_x or x + 1 >= max_x:
+        return 0
+    
+    if data[row_nr][x] != 'A':
+        return 0
+
+    one_found = False
+    if (data[row_nr-1][x-1] == 'M' and data[row_nr+1][x+1] == 'S') or (data[row_nr-1][x-1] == 'S' and data[row_nr+1][x+1] == 'M'):
+        if (data[row_nr-1][x+1] == 'M' and data[row_nr+1][x-1] == 'S') or (data[row_nr-1][x+1] == 'S' and data[row_nr+1][x-1] == 'M'):
+            print(f"Found XMAS: row {row_nr} position {x}")
+            return 1
+    
+    return 0
+
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
@@ -177,7 +199,10 @@ def execute_part_one(input: list[str]) -> None:
 
 def execute_part_two(input: list[str]) -> None:
     count = 0
+    data = extract_data(input)
 
-    # data = extract_data(input)
+    for i in range (0, len(data)):
+        for j in range (0, len(data[i])):
+            count += check_xmas(data, i, j)     
 
     print(f"Solved 2: {count}")
