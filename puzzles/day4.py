@@ -7,164 +7,103 @@ def extract_data(input: list[str]):
     # print(data)
     return data
 
-def check_right(data, row_nr: int, x: int) -> int:
+def validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right) -> bool:
     min_x = 0
     max_x = len(data[0])
     min_y = 0
     max_y = len(data)
 
-    if row_nr >= max_y or row_nr < min_y:
-        return 0
-    if x < min_x or x + 3 >= max_x:
-        return 0
+    if  y + vector_y_left < min_y or y + vector_y_right >= max_y:
+        return False
+    if x + vector_x_left < min_x or x + vector_x_right >= max_x:
+        return False
     
-    row = data[row_nr]
+    return True
 
+
+def check_right(data, y: int, x: int) -> int:
+    if not validate_position(data, y, 0, 0, x, 0, 3):
+        return 0
+   
+    row = data[y]
     if row[x] == 'X' and row[x+1] == 'M' and row[x+2] == 'A' and row[x+3] == 'S':
-        print(f"Found RIGHT: row {row_nr} position {x}")
         return 1
     
     return 0
 
-def check_left(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr >= max_y or row_nr < min_y:
-        return 0
-    if x - 3 < min_x or x >= max_x:
+def check_left(data, y: int, x: int) -> int:
+    if not validate_position(data, y, 0, 0, x, -3, 0):
         return 0
     
-    row = data[row_nr]
-
+    row = data[y]
     if row[x] == 'X' and row[x-1] == 'M' and row[x-2] == 'A' and row[x-3] == 'S':
-        print(f"Found LEFT: row {row_nr} position {x}")
         return 1
     
     return 0
 
-def check_top(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr >= max_y or row_nr - 3 < min_y:
+def check_top(data, y: int, x: int) -> int:
+    if not validate_position(data, y, -3, 0, x, 0, 0):
         return 0
-    if x < min_x or x >= max_x:
-        return 0
-    
-    if data[row_nr][x] == 'X' and data[row_nr-1][x] == 'M' and data[row_nr-2][x] == 'A' and data[row_nr-3][x] == 'S':
-        print(f"Found TOP: row {row_nr} position {x}")
+   
+    if data[y][x] == 'X' and data[y-1][x] == 'M' and data[y-2][x] == 'A' and data[y-3][x] == 'S':
         return 1
     
     return 0
 
-def check_down(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr + 3 >= max_y or row_nr < min_y:
-        return 0
-    if x < min_x or x >= max_x:
+def check_down(data, y: int, x: int) -> int:
+    if not validate_position(data, y, 0, 3, x, 0, 0):
         return 0
     
-    if data[row_nr][x] == 'X' and data[row_nr+1][x] == 'M' and data[row_nr+2][x] == 'A' and data[row_nr+3][x] == 'S':
-        print(f"Found DOWN: row {row_nr} position {x}")
+    if data[y][x] == 'X' and data[y+1][x] == 'M' and data[y+2][x] == 'A' and data[y+3][x] == 'S':
         return 1
     
     return 0
 
-def check_diag_down_right(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr + 3 >= max_y or row_nr < min_y:
-        return 0
-    if x < min_x or x + 3 >= max_x:
+def check_diag_down_right(data, y: int, x: int) -> int:
+    if not validate_position(data, y, 0, 3, x, 0, 3):
         return 0
     
-    if data[row_nr][x] == 'X' and data[row_nr+1][x+1] == 'M' and data[row_nr+2][x+2] == 'A' and data[row_nr+3][x+3] == 'S':
-        print(f"Found DIAG DOWN RIGHT: row {row_nr} position {x}")
+    if data[y][x] == 'X' and data[y+1][x+1] == 'M' and data[y+2][x+2] == 'A' and data[y+3][x+3] == 'S':
         return 1
     
     return 0
 
-def check_diag_down_left(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr + 3 >= max_y or row_nr < min_y:
-        return 0
-    if x - 3 < min_x or x >= max_x:
-        return 0
+def check_diag_down_left(data, y: int, x: int) -> int:
+    if not validate_position(data, y, 0, 3, x, -3, 0):
+        return 0    
     
-    if data[row_nr][x] == 'X' and data[row_nr+1][x-1] == 'M' and data[row_nr+2][x-2] == 'A' and data[row_nr+3][x-3] == 'S':
-        print(f"Found DIAG DOWN LEFT: row {row_nr} position {x}")
+    if data[y][x] == 'X' and data[y+1][x-1] == 'M' and data[y+2][x-2] == 'A' and data[y+3][x-3] == 'S':
         return 1
     
     return 0
 
-def check_diag_up_right(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr >= max_y or row_nr - 3 < min_y:
-        return 0
-    if x < min_x or x + 3 >= max_x:
-        return 0
+def check_diag_up_right(data, y: int, x: int) -> int:
+    if not validate_position(data, y, -3, 0, x, 0, 3):
+        return 0       
     
-    if data[row_nr][x] == 'X' and data[row_nr-1][x+1] == 'M' and data[row_nr-2][x+2] == 'A' and data[row_nr-3][x+3] == 'S':
-        print(f"Found DIAG UP RIGHT: row {row_nr} position {x}")
+    if data[y][x] == 'X' and data[y-1][x+1] == 'M' and data[y-2][x+2] == 'A' and data[y-3][x+3] == 'S':
         return 1
     
     return 0
 
-def check_diag_up_left(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr >= max_y or row_nr - 3 < min_y:
-        return 0
-    if x - 3 < min_x or x >= max_x:
-        return 0
+def check_diag_up_left(data, y: int, x: int) -> int:
+    if not validate_position(data, y, -3, 0, x, -3, 0):
+        return 0         
     
-    if data[row_nr][x] == 'X' and data[row_nr-1][x-1] == 'M' and data[row_nr-2][x-2] == 'A' and data[row_nr-3][x-3] == 'S':
-        print(f"Found DIAG UP LEFT: row {row_nr} position {x}")
+    if data[y][x] == 'X' and data[y-1][x-1] == 'M' and data[y-2][x-2] == 'A' and data[y-3][x-3] == 'S':
         return 1
     
     return 0
 
-def check_xmas(data, row_nr: int, x: int) -> int:
-    min_x = 0
-    max_x = len(data[0])
-    min_y = 0
-    max_y = len(data)
-
-    if row_nr + 1 >= max_y or row_nr - 1 < min_y:
-        return 0
-    if x - 1 < min_x or x + 1 >= max_x:
-        return 0
+def check_xmas(data, y: int, x: int) -> int:
+    if not validate_position(data, y, -1, 1, x, -1, 1):
+        return 0           
     
-    if data[row_nr][x] != 'A':
+    if data[y][x] != 'A':
         return 0
 
-    one_found = False
-    if (data[row_nr-1][x-1] == 'M' and data[row_nr+1][x+1] == 'S') or (data[row_nr-1][x-1] == 'S' and data[row_nr+1][x+1] == 'M'):
-        if (data[row_nr-1][x+1] == 'M' and data[row_nr+1][x-1] == 'S') or (data[row_nr-1][x+1] == 'S' and data[row_nr+1][x-1] == 'M'):
-            print(f"Found XMAS: row {row_nr} position {x}")
+    if (data[y-1][x-1] == 'M' and data[y+1][x+1] == 'S') or (data[y-1][x-1] == 'S' and data[y+1][x+1] == 'M'):
+        if (data[y-1][x+1] == 'M' and data[y+1][x-1] == 'S') or (data[y-1][x+1] == 'S' and data[y+1][x-1] == 'M'):
             return 1
     
     return 0
