@@ -8,92 +8,32 @@ def extract_data(input: list[str]):
     return data
 
 def validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right) -> bool:
-    min_x = 0
     max_x = len(data[0])
-    min_y = 0
     max_y = len(data)
 
-    if  y + vector_y_left < min_y or y + vector_y_right >= max_y:
+    if  y + vector_y_left < 0 or y + vector_y_right >= max_y:
         return False
-    if x + vector_x_left < min_x or x + vector_x_right >= max_x:
+    if x + vector_x_left < 0 or x + vector_x_right >= max_x:
         return False
     
     return True
 
+def check_uni(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
+    if data[y][x] == 'X' and data[y+incr_y][x+incr_x] == 'M' and data[y+2*incr_y][x+2*incr_x] == 'A' and data[y+3*incr_y][x+3*incr_x] == 'S':
+        return 1
+    
+    return 0
 
-def check_right(data, y: int, x: int) -> int:
-    if not validate_position(data, y, 0, 0, x, 0, 3):
+
+def check_all(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
+    vector_y_left = 0 if incr_y >= 0 else 3 * incr_y
+    vector_y_right = 0 if incr_y <= 0 else 3 * incr_y
+    vector_x_left = 0 if incr_x >= 0 else 3 * incr_x
+    vector_x_right = 0 if incr_x <= 0 else 3 * incr_x
+
+    if not validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right):
         return 0
-   
-    row = data[y]
-    if row[x] == 'X' and row[x+1] == 'M' and row[x+2] == 'A' and row[x+3] == 'S':
-        return 1
-    
-    return 0
-
-def check_left(data, y: int, x: int) -> int:
-    if not validate_position(data, y, 0, 0, x, -3, 0):
-        return 0
-    
-    row = data[y]
-    if row[x] == 'X' and row[x-1] == 'M' and row[x-2] == 'A' and row[x-3] == 'S':
-        return 1
-    
-    return 0
-
-def check_top(data, y: int, x: int) -> int:
-    if not validate_position(data, y, -3, 0, x, 0, 0):
-        return 0
-   
-    if data[y][x] == 'X' and data[y-1][x] == 'M' and data[y-2][x] == 'A' and data[y-3][x] == 'S':
-        return 1
-    
-    return 0
-
-def check_down(data, y: int, x: int) -> int:
-    if not validate_position(data, y, 0, 3, x, 0, 0):
-        return 0
-    
-    if data[y][x] == 'X' and data[y+1][x] == 'M' and data[y+2][x] == 'A' and data[y+3][x] == 'S':
-        return 1
-    
-    return 0
-
-def check_diag_down_right(data, y: int, x: int) -> int:
-    if not validate_position(data, y, 0, 3, x, 0, 3):
-        return 0
-    
-    if data[y][x] == 'X' and data[y+1][x+1] == 'M' and data[y+2][x+2] == 'A' and data[y+3][x+3] == 'S':
-        return 1
-    
-    return 0
-
-def check_diag_down_left(data, y: int, x: int) -> int:
-    if not validate_position(data, y, 0, 3, x, -3, 0):
-        return 0    
-    
-    if data[y][x] == 'X' and data[y+1][x-1] == 'M' and data[y+2][x-2] == 'A' and data[y+3][x-3] == 'S':
-        return 1
-    
-    return 0
-
-def check_diag_up_right(data, y: int, x: int) -> int:
-    if not validate_position(data, y, -3, 0, x, 0, 3):
-        return 0       
-    
-    if data[y][x] == 'X' and data[y-1][x+1] == 'M' and data[y-2][x+2] == 'A' and data[y-3][x+3] == 'S':
-        return 1
-    
-    return 0
-
-def check_diag_up_left(data, y: int, x: int) -> int:
-    if not validate_position(data, y, -3, 0, x, -3, 0):
-        return 0         
-    
-    if data[y][x] == 'X' and data[y-1][x-1] == 'M' and data[y-2][x-2] == 'A' and data[y-3][x-3] == 'S':
-        return 1
-    
-    return 0
+    return check_uni(data, y, x, incr_y, incr_x) 
 
 def check_xmas(data, y: int, x: int) -> int:
     if not validate_position(data, y, -1, 1, x, -1, 1):
@@ -110,28 +50,18 @@ def check_xmas(data, y: int, x: int) -> int:
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
-
     data = extract_data(input)
 
     for i in range (0, len(data)):
         for j in range (0, len(data[i])):
-            right = check_right(data, i, j)
-            count += right
-            left = check_left(data, i, j)
-            count += left
-            top = check_top(data, i, j)
-            count += top  
-            down = check_down(data, i, j)
-            count += down    
-            diag_down_right = check_diag_down_right(data, i, j)
-            count += diag_down_right     
-            diag_down_left = check_diag_down_left(data, i, j)
-            count += diag_down_left      
-            diag_up_right = check_diag_up_right(data, i, j)
-            count += diag_up_right   
-            diag_up_left = check_diag_up_left(data, i, j)
-            count += diag_up_left                                        
-                        
+            count += check_all(data, i, j, 0, 1)
+            count += check_all(data, i, j, 0, -1)
+            count += check_all(data, i, j, -1, 0)
+            count += check_all(data, i, j, 1, 0)
+            count += check_all(data, i, j, 1, 1)
+            count += check_all(data, i, j, 1, -1)
+            count += check_all(data, i, j, -1, 1)
+            count += check_all(data, i, j, -1, -1)
 
     print(f"Solved 1: {count}")
 
