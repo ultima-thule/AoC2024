@@ -55,10 +55,12 @@ def build_ordering_rules_subset(pages_update: list[str], ordering_rules_all: dic
     '''Selects only those ordering rules which consist of pages included in a single update '''
     ordering_rules_subset = ordering_rules_all.copy()
 
+    # delete rules for all pages not present in the update
     for k in list(ordering_rules_subset.keys()):
         if k not in pages_update:
             del ordering_rules_subset[k]
 
+    # delete all followers which are not pages present in the update
     for k in ordering_rules_subset:
         subset = []
         for item in ordering_rules_subset[k]:
