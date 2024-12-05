@@ -7,7 +7,7 @@ def extract_data(input: list[str]):
     # print(data)
     return data
 
-def validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right) -> bool:
+def is_in_range(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right) -> bool:
     max_x = len(data[0])
     max_y = len(data)
 
@@ -18,26 +18,31 @@ def validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, 
     
     return True
 
-def check_uni(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
+def validate_single_word(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
     if data[y][x] == 'X' and data[y+incr_y][x+incr_x] == 'M' and data[y+2*incr_y][x+2*incr_x] == 'A' and data[y+3*incr_y][x+3*incr_x] == 'S':
         return 1
 
     return 0
 
+def get_vector_right(inc: int) -> int:
+    return 0 if inc <= 0 else 3 * inc
 
-def check_all(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
-    vector_y_left = 0 if incr_y >= 0 else 3 * incr_y
-    vector_y_right = 0 if incr_y <= 0 else 3 * incr_y
-    vector_x_left = 0 if incr_x >= 0 else 3 * incr_x
-    vector_x_right = 0 if incr_x <= 0 else 3 * incr_x
+def get_vector_left(inc: int) -> int:
+    return 0 if inc >= 0 else 3 * inc
 
-    if not validate_position(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right):
+def check_word(data, y: int, x: int, incr_y: int, incr_x: int) -> int:
+    vector_y_left = get_vector_left(incr_y)
+    vector_y_right = get_vector_right(incr_y)
+    vector_x_left = get_vector_left(incr_x)
+    vector_x_right = get_vector_right(incr_x)
+
+    if not is_in_range(data, y, vector_y_left, vector_y_right, x, vector_x_left, vector_x_right):
         return 0
 
-    return check_uni(data, y, x, incr_y, incr_x) 
+    return validate_single_word(data, y, x, incr_y, incr_x) 
 
 def check_xmas(data, y: int, x: int) -> int:
-    if not validate_position(data, y, -1, 1, x, -1, 1):
+    if not is_in_range(data, y, -1, 1, x, -1, 1):
         return 0           
     
     if data[y][x] != 'A':
@@ -55,14 +60,14 @@ def execute_part_one(input: list[str]) -> None:
 
     for i in range (0, len(data)):
         for j in range (0, len(data[i])):
-            count += check_all(data, i, j, 0, 1)
-            count += check_all(data, i, j, 0, -1)
-            count += check_all(data, i, j, -1, 0)
-            count += check_all(data, i, j, 1, 0)
-            count += check_all(data, i, j, 1, 1)
-            count += check_all(data, i, j, 1, -1)
-            count += check_all(data, i, j, -1, 1)
-            count += check_all(data, i, j, -1, -1)
+            count += check_word(data, i, j, 0, 1)
+            count += check_word(data, i, j, 0, -1)
+            count += check_word(data, i, j, -1, 0)
+            count += check_word(data, i, j, 1, 0)
+            count += check_word(data, i, j, 1, 1)
+            count += check_word(data, i, j, 1, -1)
+            count += check_word(data, i, j, -1, 1)
+            count += check_word(data, i, j, -1, -1)
 
     print(f"Solved 1: {count}")
 
