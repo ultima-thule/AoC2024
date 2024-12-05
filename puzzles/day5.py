@@ -23,31 +23,34 @@ def generate_orders(update: list[str]):
     for i in range (0, len(update)):
         for j in range (i+1, len(update)):
             result.add(update[i] + "|" + update[j])
-            control.append(update[i] + "|" + update[j])
 
-    print(f"Generated set: {control}")
+    # print(f"Generated set: {control}")
     return result
 
 def check_order(order, data_order):
     result = order & data_order
-    print(f"Intersection: {result} len of {len(result)} compared to {len(order)}")
+    # print(f"Intersection: {result} len of {len(result)} compared to {len(order)}")
     return len(result) == len(order)
 
 def select_middle(update):
     index = int((len(update) - 1) / 2)
-    print(f"Middle element of {update} is {update[index]}")
+    # print(f"Middle element of {update} is {update[index]}")
     return int(update[index])
+
+def fix_order(update, data_order):
+    return update
+
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
     data_order, data_update = extract_data(input)
     
-    print(data_order)
-    print(data_update)
+    # print(data_order)
+    # print(data_update)
 
     for du in data_update:
-        print(f"\n===>>>> Checking update: {du}")
+        # print(f"\n===>>>> Checking update: {du}")
         order = generate_orders(du)
         if check_order(order, data_order):
             count += select_middle(du)
@@ -57,8 +60,16 @@ def execute_part_one(input: list[str]) -> None:
 
 def execute_part_two(input: list[str]) -> None:
     count = 0
+    data_order, data_update = extract_data(input)
+    
+    # print(data_order)
+    # print(data_update)
 
-    # for l in extract_data(input):
-    #     pass
+    for du in data_update:
+        # print(f"\n===>>>> Checking update: {du}")
+        order = generate_orders(du)
+        if not check_order(order, data_order):
+            new_order = fix_order(du, data_order)
+            count += select_middle(new_order)
 
     print(f"Solved 2: {count}")
