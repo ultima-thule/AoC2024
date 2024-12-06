@@ -1,4 +1,5 @@
 import re
+import sys
 
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
@@ -34,6 +35,9 @@ def extract_data(input: list[str]):
 
 def point(row, col):
     return f"{row},{col}"
+
+def visited_point(row, col, direction):
+    return f"{point(row, col)},{direction}"
 
 def move(curr_row, curr_col, dir, obstacles, max_row, max_col):
     next_row = curr_row
@@ -104,15 +108,36 @@ def execute_part_one(input: list[str]) -> None:
 def execute_part_two(input: list[str]) -> None:
     start_row, start_col, max_row, max_col, obstacles, direction = extract_data(input)
 
-    visited = {}
-    visited[point(start_row, start_col)] = True
+    count = 0
 
-    next_row, next_col, next_dir, stop = move(start_row, start_col, direction, obstacles, max_row, max_col)
+    for i in range (0, max_row):
+        for j in range (0, max_col):
 
-    while not stop:
-        visited[point(next_row, next_col)] = True
-        next_row, next_col, next_dir, stop = move(next_row, next_col, next_dir, obstacles, max_row, max_col)
+            sys.stdout.write("\rScenario %i of %i" % (i * max_row + j+1))
+            sys.stdout.flush()
 
-    # print(f"\nVisited: {visited}, count: {len(visited)}")
+            # print(f"Scenario %i" % (i * max_row + j+1} of {max_row * max_col}")
 
-    print(f"Solved 2: {len(visited)}")
+            new_obstacles = obstacles.copy()
+            new_obstacles[point(i, j)] = True
+
+            # print(f"\n\nAdding point to obstacles: {point(i, j)}")
+
+            visited = {}
+            visited[visited_point(i, j, direction)] = True
+
+            next_row, next_col, next_dir, stop = move(start_row, start_col, direction, new_obstacles, max_row, max_col)
+
+            while not stop:
+                p = visited_point(next_row, next_col, next_dir)
+                # print(f"Visiting point {p}")
+                if p in visited:
+                    # print(f"Crossed already visited point! {p}")
+                    count += 1
+                    break
+                visited[p] = True
+                next_row, next_col, next_dir, stop = move(next_row, next_col, next_dir, new_obstacles, max_row, max_col)
+
+            # print(f"\nVisited: {visited}, count: {len(visited)}")
+
+    print(f"Solved 2: {count}")
