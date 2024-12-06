@@ -21,13 +21,13 @@ def run_part(day, part, input):
     func_one(input) if part == 1 else func_two(input)
 
 def main(argv):
-    input = read_input(argv[0])
+    input_data = read_input(argv[0])
     
     start_time = time.time()
-    run_part(argv[0], 1, input)
+    run_part(argv[0], 1, input_data)
     print("--- %s seconds ---\n" % (time.time() - start_time))
     start_time = time.time()
-    run_part(argv[0], 2, input)
+    run_part(argv[0], 2, input_data)
     print("--- %s seconds ---\n" % (time.time() - start_time))
 
 if __name__ == "__main__":
