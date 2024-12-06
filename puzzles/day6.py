@@ -4,10 +4,8 @@ import sys
 def extract_data(input: list[str], start_dir: str):
     '''Extract and transform text data. Map obstacles to dictionary, find starting point and maze boundaries.'''
 
-    start_row = -1
-    start_col = -1
+    start_row, start_col, max_col = -1, -1, -1
     max_row = len(input)
-    max_col = -1
     obstacles = {}
 
     for row in range(0, len(input)):
@@ -17,8 +15,7 @@ def extract_data(input: list[str], start_dir: str):
 
         # starting position found
         if col != -1:
-            start_row = row
-            start_col = col
+            start_row, start_col = row, col
             line = line.replace(start_dir, ".")
 
         # obstacle found
@@ -36,8 +33,7 @@ def point_with_dir(row, col, direction):
 
 def move(curr_row, curr_col, dir, obstacles, max_row, max_col):
     '''Execute one step in given direction'''
-    next_row = curr_row
-    next_col = curr_col
+    next_row, next_col = curr_row, curr_col
 
     # calculate new position
     vectors = {"^": [-1, 0], "v": [1, 0], "<": [0, -1], ">": [0, 1]}
@@ -59,8 +55,7 @@ def move(curr_row, curr_col, dir, obstacles, max_row, max_col):
         next_dir = dir_changes[dir]
 
         # revoke latest move to stay in place
-        next_row = curr_row
-        next_col = curr_col
+        next_row, next_col = curr_row, curr_col
 
     return next_row, next_col, next_dir, False
 
