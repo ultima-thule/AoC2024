@@ -26,6 +26,10 @@ def calculate(a, b, operation):
         return int(a) + int(b)
     if operation == "*":
         return int(a) * int(b)
+    if operation == "||":
+        # print(f"operation {a} || {b} = {int(str(a) + str(b))}")
+        return int(str(a) + str(b))
+
 
 def calc_step(total, subtotal, numbers_to_do, results, key, oper_string):
     # print(f"Calculating step, subtotal {subtotal}, steps to do {numbers_to_do}, res {results}, key {key}")
@@ -44,11 +48,13 @@ def calc_step(total, subtotal, numbers_to_do, results, key, oper_string):
 
     c1 = calculate(subtotal, start_num, "*")
     c2 = calculate(subtotal, start_num, "+")
+    c3 = calculate(subtotal, start_num, "||")
 
     # print (f"Oper *: {c1}, oper +: {c2}")
 
     calc_step (total, c1, left_numbers, results, key, oper_string + " * " + start_num) 
     calc_step (total, c2, left_numbers, results, key, oper_string + " + " + start_num)
+    calc_step (total, c3, left_numbers, results, key, oper_string + " || " + start_num)
 
 
 def validate (total, numbers, results):
