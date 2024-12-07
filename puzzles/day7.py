@@ -1,6 +1,6 @@
 import sys
 
-def extract_data(input: list[str]):
+def extract_data(input: list[str]) -> {dict[str, list[str]], dict[str, str]}:
     input_data = {}
     solutions = {}
 
@@ -16,7 +16,7 @@ def extract_data(input: list[str]):
 
     return input_data, solutions
 
-def calculate(a, b, operation) -> int:
+def calculate(a: str, b: str, operation: str) -> int:
     '''Calculate result of operation'''
     if operation == "+":
         return int(a) + int(b)
@@ -26,7 +26,7 @@ def calculate(a, b, operation) -> int:
         return int(str(a) + str(b))
 
 
-def calc_step(expected, subtotal, numbers_left, solutions, sol_key, with_concat) -> None:
+def calc_step(expected: int, subtotal: int, numbers_left: list[int], solutions: dict[str, str], sol_key: str, with_concat: bool) -> None:
     '''Executes single calculations step'''
 
     # all numbers used in an equation 
@@ -54,7 +54,7 @@ def calc_step(expected, subtotal, numbers_left, solutions, sol_key, with_concat)
             calc_step (expected, c3, numbers_left, solutions, sol_key, with_concat)
 
 
-def validate (eq_data, sol_key, solutions, with_concat) -> None:
+def validate (eq_data: list[str], sol_key: str, solutions: dict[str, str], with_concat: bool) -> None:
     '''Validates whether the equation has at least one solution'''
     expected = int(eq_data[0])
     numbers = eq_data[1]
@@ -62,33 +62,25 @@ def validate (eq_data, sol_key, solutions, with_concat) -> None:
     return calc_step(expected, numbers[0], numbers[1:], solutions, sol_key, with_concat)
 
 
-def execute_part_one(input: list[str]) -> None:
+def execute(input: list[str], scenario: int, with_concat: bool) -> None:
     count = 0
 
     input_data, solutions = extract_data(input)
 
-    #iterate throgh calibration equations, excluding concat operator
+    #iterate throgh calibration equations, in- or excluding concat operator
     for k in input_data:
-        validate(input_data[k], k, solutions, False)
+        validate(input_data[k], k, solutions, with_concat)
 
         # equation is valid
         if solutions[k]:
             count += int(input_data[k][0])
 
-    print(f"\nSolved 1: {count} ")
+    print(f"\nSolved {scenario}: {count} ")
+
+
+def execute_part_one(input: list[str]) -> None:
+    execute (input, 1, False)
 
 
 def execute_part_two(input: list[str]) -> None:
-    count = 0
-
-    input_data, solutions = extract_data(input)
-
-    #iterate throgh calibration equations, including concat operator
-    for k in input_data:
-        validate(input_data[k], k, solutions, True)
-
-        # equation is valid
-        if solutions[k]:
-            count += int(input_data[k][0])
-
-    print(f"Solved 2: {count}")
+    execute (input, 2, True)
