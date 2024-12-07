@@ -1,91 +1,79 @@
 import sys
 
 def extract_data(input: list[str]):
-    data = {}
-    results = {}
+    input_data = {}
+    equations = {}
 
     for line in input:
-        fl = line.strip().split(":")
+        key = line.strip()
+        fl = key.split(":")
         sl = fl[1].strip().split()
-        key = get_key(fl[0], sl)
-        data[key] = [fl[0], sl]
-        results[key] = False
+        input_data[key] = [fl[0], sl]
+        equations[key] = False
 
-    # print(data)
-    # print(results)
-    return data, results
+    return input_data, equations
 
-def get_key(total, numbers):
-    res = f"{total}"
-    for n in numbers:
-        res += f",{n}"
-    return res
-
-def calculate(a, b, operation):
+def calculate(a, b, operation) -> int:
+    '''Calculate result of operation'''
     if operation == "+":
         return int(a) + int(b)
     if operation == "*":
         return int(a) * int(b)
     if operation == "||":
-        # print(f"operation {a} || {b} = {int(str(a) + str(b))}")
         return int(str(a) + str(b))
 
 
-def calc_step(total, subtotal, numbers_to_do, results, key, oper_string):
-    # print(f"Calculating step, subtotal {subtotal}, steps to do {numbers_to_do}, res {results}, key {key}")
+def calc_step(expected, subtotal, numbers_left, equations, key, with_concat):
+    '''Executes single calculations step'''
 
-    if len(numbers_to_do) == 0:
-        results[key] = results[key] or (subtotal == total)
-        # print (f"=> {total}: {oper_string} = {subtotal}.\n")
-
-        if subtotal != total:
-            pass
-            # print (f"=> Subtotal {subtotal} of {total}. Solution found {subtotal == total}, {oper_string}.\n")
+    # all numbers used in an equation 
+    if len(numbers_left) == 0:
+        # OR result to previously saved equation variations results
+        equations[key] |= (subtotal == expected)
         return
 
-    start_num = numbers_to_do[0]
-    left_numbers = numbers_to_do[1:]
+    # no valid equation variation found yet
+    if not equations[key]:
+        # pick next starting number
+        start_num = numbers_left[0]
+        # trim leftover numbers
+        left_numbers = numbers_left[1:]
 
-    c1 = calculate(subtotal, start_num, "*")
-    c2 = calculate(subtotal, start_num, "+")
-    c3 = calculate(subtotal, start_num, "||")
+        # spawn next variants
+        c1 = calculate(subtotal, start_num, "*")
+        calc_step (expected, c1, left_numbers, equations, key, with_concat) 
 
-    # print (f"Oper *: {c1}, oper +: {c2}")
+        c2 = calculate(subtotal, start_num, "+")
+        calc_step (expected, c2, left_numbers, equations, key, with_concat)
 
-    calc_step (total, c1, left_numbers, results, key, oper_string + " * " + start_num) 
-    calc_step (total, c2, left_numbers, results, key, oper_string + " + " + start_num)
-    calc_step (total, c3, left_numbers, results, key, oper_string + " || " + start_num)
+        if with_concat:
+            c3 = calculate(subtotal, start_num, "||")
+            calc_step (expected, c3, left_numbers, equations, key, with_concat)
 
 
-def validate (total, numbers, results):
+def validate (eq_data, eq_key, equations, with_concat):
+    '''Validates whether the equation has at least one solution'''
+    expected = int(eq_data[0])
+    numbers = eq_data[1]
 
     start_num = numbers[0]
-    left_numbers = numbers[1:]
+    numbers_left = numbers[1:]
 
-    return calc_step(total, start_num, left_numbers, results, get_key(total, numbers), str(start_num))
+    return calc_step(expected, start_num, numbers_left, equations, eq_key, with_concat)
 
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
-    data, results = extract_data(input)
+    input_data, equations = extract_data(input)
 
-    #iterate throgh calibration equations
-    for k in data:
+    #iterate throgh calibration equations, excluding concat operator
+    for k in input_data:
+        validate(input_data[k], k, equations, False)
+
         # equation is valid
-        total = data[k][0]
-        numbers = data[k][1]
-        validate(int(total), numbers, results)
-        is_valid = results[k]
-        # print(f"\n===> Checked line: {numbers}, expected result: {total}. Found: {is_valid}")
-
-        if is_valid:
-            count += int(total)
-        # else:
-            # print(f"\n===> Checking line: {data[k]}, expected result: {k}. Solution found: {is_valid}")
-    
-    # print(f"results len: {len(results)}")
-    # print(f"results: {results}")
+        if equations[k]:
+            count += int(input_data[k][0])
 
     print(f"\nSolved 1: {count} ")
 
@@ -93,7 +81,14 @@ def execute_part_one(input: list[str]) -> None:
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    # for l in extract_data(input):
-    #     pass
+    input_data, equations = extract_data(input)
+
+    #iterate throgh calibration equations, including concat operator
+    for k in input_data:
+        validate(input_data[k], k, equations, True)
+
+        # equation is valid
+        if equations[k]:
+            count += int(input_data[k][0])
 
     print(f"Solved 2: {count}")
