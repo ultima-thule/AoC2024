@@ -1,6 +1,7 @@
-import sys
+from typing import Any
 
-def extract_data(input: list[str]) -> {dict[str, list[str]], dict[str, str]}:
+
+def extract_data(input: list[str]) -> tuple[dict[str, list[Any]], dict[str, bool]]:
     input_data = {}
     solutions = {}
 
@@ -16,7 +17,7 @@ def extract_data(input: list[str]) -> {dict[str, list[str]], dict[str, str]}:
 
     return input_data, solutions
 
-def calculate(a: str, b: str, operation: str) -> int:
+def calculate(a: str | int, b: str | int, operation: str) -> int:
     '''Calculate result of operation'''
     if operation == "+":
         return int(a) + int(b)
@@ -24,9 +25,10 @@ def calculate(a: str, b: str, operation: str) -> int:
         return int(a) * int(b)
     if operation == "||":
         return int(str(a) + str(b))
+    return 0
 
 
-def calc_step(expected: int, subtotal: int, numbers_left: list[int], solutions: dict[str, str], sol_key: str, with_concat: bool) -> None:
+def calc_step(expected: int, subtotal: int, numbers_left: list[str], solutions: dict[str, bool], sol_key: str, with_concat: bool) -> None:
     '''Executes single calculations step'''
 
     # all numbers used in an equation 
@@ -54,12 +56,12 @@ def calc_step(expected: int, subtotal: int, numbers_left: list[int], solutions: 
             calc_step (expected, c3, numbers_left, solutions, sol_key, with_concat)
 
 
-def validate (eq_data: list[str], sol_key: str, solutions: dict[str, str], with_concat: bool) -> None:
+def validate (eq_data: list[Any], sol_key: str, solutions: dict[str, bool], with_concat: bool) -> None:
     '''Validates whether the equation has at least one solution'''
     expected = int(eq_data[0])
     numbers = eq_data[1]
 
-    return calc_step(expected, numbers[0], numbers[1:], solutions, sol_key, with_concat)
+    return calc_step(expected, int(numbers[0]), numbers[1:], solutions, sol_key, with_concat)
 
 
 def execute(input: list[str], scenario: int, with_concat: bool) -> None:
