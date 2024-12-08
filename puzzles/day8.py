@@ -43,22 +43,58 @@ def generate_all_antennas(antennas: list[str]) -> set:
 
     return all_antennas
 
-def is_valid(x: int, y: int, size_x: int, size_y: int, antenna: str, check_overlap: bool):
+def is_in_range(x: int, y: int, size_x: int, size_y: int) -> bool:
     if x < 0 or x >= size_x or y < 0 or y >= size_y:
+        return False
+    return True
+
+def is_valid(x: int, y: int, size_x: int, size_y: int, antenna: str, check_overlap: bool):
+    # check if is within grid range
+    if not is_in_range(x, y, size_x, size_y):
+        print(f"* Point {x}, {y} out of range!")
         return None
 
+    print(f"* Point {x}, {y} in range")
     antinode = point_to_str(x, y)
    
     # return antinode if is not overlapping
     if check_overlap:
+        print(f"- checking overlap {antinode} with {antenna}: {antinode == antenna}")
         return antinode if antinode != antenna else None
     
     return antinode
 
 
 def possible_antinodes(x: int, y: int, dist_x: int, dist_y: int, antenna: str, size_x: int, size_y: int, repeat: bool):
-    return [[x + dist_x, y + dist_y, antenna], 
-            [x - dist_x, y - dist_y, antenna]]
+    if not repeat:
+        return [[x + dist_x, y + dist_y, antenna], 
+        [x - dist_x, y - dist_y, antenna]]
+
+    result = []
+
+    counter = 0
+    while True:
+        counter += 1
+        next_x = x + counter * dist_x
+        next_y = y + counter * dist_y
+        print(f"+ Point {x}, {y} => next point: {next_x}, {next_y}")
+        if is_in_range(next_x, next_y, size_x, size_y):
+            result += [[next_x, next_y, antenna]]
+        else:
+            break
+
+    counter = 0
+    while True:
+        counter += 1
+        next_x = x - counter * dist_x
+        next_y = y - counter * dist_y
+        print(f"- Point {x}, {y} => next point: {next_x}, {next_y}")
+        if is_in_range(next_x, next_y, size_x, size_y):
+            result += [[next_x, next_y, antenna]]
+        else:
+            break
+
+    return result
 
 def calculate_antinodes(point_1, point_2, size_x, size_y, repeat: bool):
     result = set() 
@@ -112,6 +148,9 @@ def execute(input: list[str], repeat: bool) -> dict[str, str]:
         print(f"\nChecking antinodes for {k}")
         antinodes = antinodes.union(find_antinodes(v, size_x, size_y, repeat))
 
+
+    print_grid(size_x, size_y, antinodes)
+
     return antinodes
 
 def execute_part_one(input: list[str]) -> None:
@@ -127,3 +166,12 @@ def execute_part_two(input: list[str]) -> None:
 
     print(f"Antinodes: {antinodes} of len {len(antinodes)}")
     print(f"==> Solution 2: {len(antinodes)}")
+
+def print_grid(size_x, size_y, antinodes):
+    for i in range(0, size_x):
+        for j in range(0, size_y):
+            if point_to_str(i,j) in antinodes:
+                print("#", end="")
+            else:
+                print(".", end="")
+        print("")
