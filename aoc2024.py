@@ -8,7 +8,7 @@ def read_input(day):
         return dataFile.readlines()
 
 def run_part(day, part, input):
-    print(f"Executing part {part}")
+    print(f"--- Executing part {part} ---")
 
     fnc_part_one = 'execute_part_one'
     fnc_part_two = 'execute_part_two'
@@ -25,10 +25,10 @@ def main(argv):
     
     start_time = time.time()
     run_part(argv[0], 1, input_data)
-    print("--- %s seconds ---\n" % (time.time() - start_time))
+    print("--- Solved in %s seconds ---\n" % (time.time() - start_time))
     start_time = time.time()
     run_part(argv[0], 2, input_data)
-    print("--- %s seconds ---\n" % (time.time() - start_time))
+    print("--- Solved in %s seconds ---\n" % (time.time() - start_time))
 
 if __name__ == "__main__":
     main(sys.argv[1:])

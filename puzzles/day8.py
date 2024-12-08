@@ -1,41 +1,40 @@
 import re
 
-def extract_data(input: list[str]):
+def extract_data(input: list[str]) -> tuple[int, int, dict[str,list[str]]]:
     '''Extract and transform text data. Map antennas to dictionary.'''
 
-    size_row = len(input)
-    size_col = len(input[0].strip())
-    antennas_raw = set()
+    size_x = len(input)
+    size_y = len(input[0].strip())
     antennas_sorted = {}
 
     p = re.compile(r"\w")
 
-    for row in range(0, size_row):
-        line = input[row].strip()
+    for x in range(0, size_x):
+        line = input[x].strip()
 
-        # print(f"Analyzing line: {line}")
+        for y in range(0, size_y):
+            c = input[x][y]
 
-        for col in range(0, size_col):
-            c = input[row][col]
             # antenna found
             if p.match(c):
-                # print(f"Match found: {c} at point {row},{col}")
-                antennas_raw.add(point(row, col))
                 if c not in antennas_sorted:
                     antennas_sorted[c] = []
-                antennas_sorted[c].append(point(row, col))
+                antennas_sorted[c].append(point_to_str(x, y))
 
-    # print(f"Antennas raw: {antennas_raw}")
-    # print(f"Antennas sorted: {antennas_sorted}")
-    # print(f"Sizes: {max_row} {max_col}")
+    return size_x, size_y, antennas_sorted
 
-    return size_row, size_col, antennas_raw, antennas_sorted
+def point_to_str(x, y):
+    return f"{x},{y}"
 
-def point(row, col):
-    return f"{row},{col}"
+def point_from_str(point_string: str) -> tuple[int, int]:
+    p = point_string.split(",")
+    x = int(p[0])
+    y = int(p[1])
+
+    return x, y
 
 def generate_all_antennas(antennas: list[str]) -> set:
-    '''Generates all possible antennas to check for a given list of pantennas'''
+    '''Generates all possible antennas to check for a given list of antennas'''
     all_antennas = set()
 
     for i in range (0, len(antennas)):
@@ -44,55 +43,50 @@ def generate_all_antennas(antennas: list[str]) -> set:
 
     return all_antennas
 
-def is_valid(row, col, size_row, size_col, antenna):
-    if row < 0 or row >= size_row:
-        return None
-    if col < 0 or col >= size_col:
+def is_valid(x: int, y: int, size_x: int, size_y: int, antenna: str, check_overlap: bool):
+    if x < 0 or x >= size_x or y < 0 or y >= size_y:
         return None
 
-    antinode = point(row, col)
-
-    if antinode == antenna:
-        return None
+    antinode = point_to_str(x, y)
+   
+    # return antinode if is not overlapping
+    if check_overlap:
+        return antinode if antinode != antenna else None
     
     return antinode
 
-def calculate_antinodes(point_1, point_2, size_row, size_col):
+
+def possible_antinodes(x: int, y: int, dist_x: int, dist_y: int, antenna: str, size_x: int, size_y: int, repeat: bool):
+    return [[x + dist_x, y + dist_y, antenna], 
+            [x - dist_x, y - dist_y, antenna]]
+
+def calculate_antinodes(point_1, point_2, size_x, size_y, repeat: bool):
     result = set() 
 
-    print(f"Point 1: {point_1}, point 2: {point_2}")
+    # print(f"Point 1: {point_1}, point 2: {point_2}")
 
-    p_1 = point_1.split(",")
-    row_1 = int(p_1[0])
-    col_1 = int(p_1[1])
+    x_1, y_1 = point_from_str(point_1)
+    x_2, y_2 = point_from_str(point_2)
 
-    p_2 = point_2.split(",")
-    row_2 = int(p_2[0])
-    col_2 = int(p_2[1])
+    dist_x = x_2 - x_1
+    dist_y = y_2 - y_1
 
-    dist_row = row_2 - row_1
-    dist_col = col_2 - col_1
+    # print (f"Point: {x_1},{y_1} and {x_2},{y_2} in distance [{dist_x},{dist_y}]")
 
-    print (f"Point: {row_1},{col_1} and {row_2},{col_2} in distance [{dist_row},{dist_col}]")
-
-    antinode = is_valid(row_1 + dist_row, col_1 + dist_col, size_row, size_col, point_2)
-    if antinode is not None:
-        result.add(antinode)
-    antinode = is_valid(row_1 - dist_row, col_1 - dist_col, size_row, size_col, point_2)
-    if antinode is not None:
-        result.add(antinode)
-    antinode = is_valid(row_2 + dist_row, col_2 + dist_col, size_row, size_col, point_1)
-    if antinode is not None:
-        result.add(antinode)
-    antinode = is_valid(row_2 - dist_row, col_2 - dist_col, size_row, size_col, point_1)
-    if antinode is not None:
-        result.add(antinode)
+    nodes_to_check = possible_antinodes(x_1, y_1, dist_x, dist_y, point_2, size_x, size_y, repeat)
+    nodes_to_check += possible_antinodes(x_2, y_2, dist_x, dist_y, point_1, size_x, size_y, repeat)
+   
+    for n in nodes_to_check:
+        antinode = is_valid(n[0], n[1], size_x, size_y, n[2], not repeat)    
+        if antinode is not None:
+            result.add(antinode)
 
     print(f"Antinodes found: {result}")
 
     return result
 
-def generate_antinodes(points: list[str], size_row: int, size_col: int) -> None:
+def find_antinodes(points: list[str], size_x: int, size_y: int, repeat: bool) -> None:
+    '''Find all positions of antinodes for given set of antennas, within boudaries of max_x and max_y'''
     
     all_antennas = generate_all_antennas(points)
     result = set()
@@ -101,35 +95,35 @@ def generate_antinodes(points: list[str], size_row: int, size_col: int) -> None:
 
     for i in all_antennas:
         pp = i.split("+")
-        res = calculate_antinodes(pp[0], pp[1], size_row, size_col)
+        res = calculate_antinodes(pp[0], pp[1], size_x, size_y, repeat)
         result = result.union(res)
 
     print(f"All antinodes found: {result}")
 
     return result
 
-def execute_part_one(input: list[str]) -> None:
-    size_row, size_col, antennas_raw, antennas_sorted = extract_data(input)
+def execute(input: list[str], repeat: bool) -> dict[str, str]:
+    '''Execute single scenario'''
+    size_x, size_y, antennas_sorted = extract_data(input)
 
     antinodes = set()
 
     for k,v in antennas_sorted.items():
         print(f"\nChecking antinodes for {k}")
-        antinodes = antinodes.union(generate_antinodes(v, size_row, size_col))
+        antinodes = antinodes.union(find_antinodes(v, size_x, size_y, repeat))
+
+    return antinodes
+
+def execute_part_one(input: list[str]) -> None:
+
+    antinodes = execute(input, False)
 
     print(f"Antinodes: {antinodes} of len {len(antinodes)}")
-
-
-    result = antennas_raw ^ antinodes
-
-    print(f"\nAntennas: {antennas_raw}")
-    print(f"Result set: {result}")
-
-    print(f"Solved 1: {len(antinodes)}")
+    print(f"==> Solution 1: {len(antinodes)}")
 
 
 def execute_part_two(input: list[str]) -> None:
-    pass
-    # max_row, max_col, antennas_raw, antennas_sorted = extract_data(input)
+    antinodes = execute(input, True)
 
-    # print(f"Solved 2: {len(antennas_raw)}")
+    print(f"Antinodes: {antinodes} of len {len(antinodes)}")
+    print(f"==> Solution 2: {len(antinodes)}")
