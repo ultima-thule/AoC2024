@@ -3,8 +3,7 @@ import time
 
 def read_input(day):
     with open(f"puzzles/data/day{day}.txt", "r+") as dataFile:
-        print(f"--- DAY {day} --- ")
-        print("Reading data from a file")
+        print(f"****** DAY {day} ******")
         return dataFile.readlines()
 
 def run_part(day, part, input):
