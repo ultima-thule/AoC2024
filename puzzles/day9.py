@@ -3,7 +3,9 @@ from typing import Any
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
     data: list[Any] = []
-    empty_indices = []
+    empty_indices = {}
+    full_indices = {}
+    file_number_indices = {}
     index = 0
     
     all_lines = ""
@@ -18,14 +20,28 @@ def extract_data(input: list[str]):
                data.append(index)
             else:
                 data.append('.')
+        # data on disk
         if mod == 0:
+            if cnt != 0:
+                if cnt not in full_indices:
+                    full_indices[cnt] = []
+                full_indices[cnt].append([len(data) - cnt, index])
+                file_number_indices[index] = cnt
             index += 1
+        # empty space on disk
         else:
             if cnt != 0:
-                empty = f"{len(data) - cnt}|{cnt}"
-                empty_indices.append(empty)
+                if cnt not in empty_indices:
+                    empty_indices[cnt] = []
+                empty_indices[cnt].append(len(data) - cnt)
 
-    return data, empty_indices
+    print(f"Data: \n{data}")
+
+    print(f"Full indices: \n{full_indices}")
+    print(f"Empty indices: \n{empty_indices}")
+    print(f"File number indices: \n{file_number_indices}")
+
+    return data, empty_indices, full_indices, file_number_indices
 
 def move(input_data):
     
@@ -60,10 +76,33 @@ def move(input_data):
         input_data[pointer_start] = end
         input_data[pointer_end] = start
 
+        # move pointers by one position
         pointer_start += 1
         pointer_end -= 1
 
-    print(f"After running: \n{input_data}")
+def get_max_gap(dictionary):
+    sorted_dict = dict(sorted(dictionary.items()))
+    last_key = list(sorted_dict) [-1]
+    return last_key
+
+
+def move_full(empty_indices, full_indices, file_number_indices):
+
+    #sort dictionary of files in reversed order
+    sorted_dict = dict(sorted(file_number_indices.items(), reverse=True))
+    print(f"Sorted dict: \n{sorted_dict}\n")
+
+    # iterate through files
+    for k, v in sorted_dict.items():
+        # what is the max available free space gap
+        max_gap = get_max_gap(empty_indices)
+        print(f"==> Looking for space for ID={k} of len {v}. Gap from {v} to {max_gap}.")
+        for i in range (v, max_gap + 1):
+            if i in empty_indices:
+                print(f"{k} => {i}")
+                print(f"Possible locations for {v}: {empty_indices[i]}\n")
+                break
+
 
 
 
@@ -77,17 +116,15 @@ def compute_checksum(input_data) -> int:
 
     return checksum
 
-
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
-    data, empty_indices = extract_data(input)
+    data, empty_indices, full_indices, file_number_indices = extract_data(input)
 
     print(data)
     print(empty_indices)
 
     move(data)
-
     count = compute_checksum(data)
 
     print(f"Solved 1: {count}")
@@ -96,6 +133,9 @@ def execute_part_one(input: list[str]) -> None:
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    data, empty_indices = extract_data(input)
+    data, empty_indices, full_indices, file_number_indices = extract_data(input)
+
+    move_full(empty_indices, full_indices, file_number_indices)
+    # count = compute_checksum(data)
 
     print(f"Solved 2: {count}")
