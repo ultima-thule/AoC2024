@@ -1,5 +1,6 @@
 import re
 from collections import defaultdict
+from puzzles.day_14_algo import *
 
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
@@ -10,30 +11,17 @@ def extract_data(input: list[str]):
         p_x, p_y, v_x, v_y = parse_line(line)
         data.append([(p_x, p_y), (v_x, v_y)])
 
-    # print(data)
     return data
 
 def parse_line(line):
-    # print(f"Line: {line}")
     pattern = r'p=(\d+),(\d+) v=([-]?\d+),([-]?\d+)'
     result = re.search(pattern, line)
 
-    # print(f"Result: {result}")
-
-    p_x = int(result.group(1))
-    p_y = int(result.group(2))
-    v_x = int(result.group(3))
-    v_y = int(result.group(4))
-
-    # print(f"Robot found at position {p_x}, {p_y} with velocity {v_x}, {v_y}")
-
-    return p_x, p_y, v_x, v_y
+    return int(result.group(1)), int(result.group(2)), int(result.group(3)), int(result.group(4))
 
 def next_position(position, vector, max_x, max_y):
     x = position[0] + vector[0]
     y = position[1] + vector[1]
-
-    # print(f"1. Move #{move_nr} from position {position[0]},{position[1]} => {x},{y}")
 
     if x < 0:
         x = max_x + x
@@ -43,7 +31,6 @@ def next_position(position, vector, max_x, max_y):
         y = max_y + y
     if y >= max_y:
         y = y - max_y
-    # print(f"2. Move #{move_nr} from position {position[0]},{position[1]} => {x},{y}\n")
 
     return (x, y)
 
@@ -72,9 +59,13 @@ def calculate_score(positions, max_x, max_y):
             elif k[1] > mid_y:
                 q_4 += v
     
-    print(f"Quadrants {q_1}, {q_2}, {q_3}, {q_4}")
-
     return q_1 * q_2 * q_3 * q_4    
+
+def plot_robots(positions, max_x, max_y):
+    for x in range(0, max_x):
+        for y in range(0, max_y):
+            print("X" if (x, y) in positions else ".", end="")
+        print()
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
@@ -84,7 +75,6 @@ def execute_part_one(input: list[str]) -> None:
     repeat = 100
 
     data = extract_data(input)
-
     ending_positions = defaultdict(int)
 
     for i in data:
@@ -94,15 +84,6 @@ def execute_part_one(input: list[str]) -> None:
     count = calculate_score(ending_positions, max_x, max_y)
 
     print(f"Solved 1: {count}")
-
-def plot_robots(positions, max_x, max_y):
-    for x in range(0, max_x):
-        for y in range(0, max_y):
-            if (x, y) in positions:
-                print("X", end="")
-            else:
-                print(".", end="")
-        print()
 
 def execute_part_two(input: list[str]) -> None:
     count = 0
@@ -123,6 +104,7 @@ def execute_part_two(input: list[str]) -> None:
 
         robots = new_robots
 
+        # assume that picture is drawn when there is no overlap in robots
         if len(ending_positions) == len(robots):
             break;
 
