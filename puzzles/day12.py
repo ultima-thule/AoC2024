@@ -59,50 +59,44 @@ def get_cnt(point, all_points):
         return 1
     return 0
 
-def get_adjacents(point, all_plots):
+def count_neighbours(point, all_points):
     count = 0
 
-    count += get_cnt((point[0] - 1, point[1]), all_plots)
-    count += get_cnt((point[0] + 1, point[1]), all_plots)
-    count += get_cnt((point[0], point[1] - 1), all_plots)
-    count += get_cnt((point[0], point[1] + 1), all_plots)
+    count += get_cnt((point[0] - 1, point[1]), all_points)
+    count += get_cnt((point[0] + 1, point[1]), all_points)
+    count += get_cnt((point[0], point[1] - 1), all_points)
+    count += get_cnt((point[0], point[1] + 1), all_points)
 
     return count
 
 def calculate_perimeters(shape):
+    '''Number of perimeter is equal to 4 minus number of neighbours'''
     total = 0
     for i in shape:
-        perim = 4 - get_adjacents(i, shape)
+        perim = 4 - count_neighbours(i, shape)
         total += perim
 
     return total
 
-def calculate_corners(letter, shape):
-    # print(f"Calculaing corners for shape {letter} of {shape}")
-    total = 0
+def count_corners(shape):
+    count = 0
     for i in shape:
-        is_corner = False        
-        # print(f"Corner: {i}")
-        x = i[0]
-        y = i[1]
+        x, y = i[0], i[1]
+
+        # external corners
         p_top = (x - 1, y)
         p_bottom = (x + 1, y)
         p_left = (x, y - 1)
         p_right = (x, y + 1)
-        # external corners
-        # print(f"Adjacent points: {p_top} => {p_top not in shape}, {p_bottom} => {p_bottom not in shape}, {p_left} => {p_left not in shape}, {p_right} => {p_right not in shape}")
+
         if p_top not in shape and p_left not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
         if p_top not in shape and p_right not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
         if p_bottom not in shape and p_left not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
         if p_bottom not in shape and p_right not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
 
         # internal corners
         p_top_left = (x - 1, y - 1)
@@ -111,27 +105,21 @@ def calculate_corners(letter, shape):
         p_bottom_right = (x + 1, y + 1)
 
         if p_top in shape and p_right in shape and p_top_right not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
         if p_top in shape and p_left in shape and p_top_left not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
         if p_bottom in shape and p_right in shape and p_bottom_right not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
         if p_bottom in shape and p_left in shape and p_bottom_left not in shape:
-            # print(f"Corner found: {x},{y}")
-            total += 1
+            count += 1
 
-    # print(f"===> Shape {letter} - total corners found: {total}\n")
-    return total
+    return count
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
     max_x, max_y, data, regions = extract_data(input)
 
-    # identify all regions
     unique_regions = identify_regions(data, regions, max_x, max_y)
 
     for k, v in unique_regions.items():
@@ -146,12 +134,10 @@ def execute_part_two(input: list[str]) -> None:
 
     max_x, max_y, data, regions = extract_data(input)
 
-    # identify all regions
     unique_regions = identify_regions(data, regions, max_x, max_y)
 
     for k, v in unique_regions.items():
-        # print(f"Checking shape {v}")
-        price = len(v) * calculate_corners(k[0], v)
+        price = len(v) * count_corners(v)
         count += price
 
     print(f"Solved 2: {count}")
