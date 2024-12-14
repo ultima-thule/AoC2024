@@ -3,10 +3,8 @@ from typing import Any
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
     data: list[Any] = []
-    empty_indices = {}
-    full_indices = {}
-    file_number_indices = {}
     index = 0
+    return_data = []
     
     all_lines = ""
     for line in input:
@@ -20,28 +18,15 @@ def extract_data(input: list[str]):
                data.append(index)
             else:
                 data.append('.')
+
+        if cnt != 0:
+            return_data.append((len(data) - cnt, cnt, index if mod == 0 else "."))
+
         # data on disk
         if mod == 0:
-            if cnt != 0:
-                if cnt not in full_indices:
-                    full_indices[cnt] = []
-                full_indices[cnt].append([len(data) - cnt, index])
-                file_number_indices[index] = cnt
             index += 1
-        # empty space on disk
-        else:
-            if cnt != 0:
-                if cnt not in empty_indices:
-                    empty_indices[cnt] = []
-                empty_indices[cnt].append(len(data) - cnt)
 
-    print(f"Data: \n{data}")
-
-    print(f"Full indices: \n{full_indices}")
-    print(f"Empty indices: \n{empty_indices}")
-    print(f"File number indices: \n{file_number_indices}")
-
-    return data, empty_indices, full_indices, file_number_indices
+    return data, return_data, index - 1
 
 def move(input_data):
     
@@ -80,49 +65,65 @@ def move(input_data):
         pointer_start += 1
         pointer_end -= 1
 
-def get_max_gap(dictionary):
-    sorted_dict = dict(sorted(dictionary.items()))
-    last_key = list(sorted_dict) [-1]
-    return last_key
+def convert_to_list(data):
+    ret = []
+    for item in data:
+        for i in range (0, item[1]):
+            ret.append(item[2])
+    return ret
 
+def move_full(data, start_value):
+    
+    for i in range(len(data) - 1, -1, -1):
+        item = data[i]
+        file_name = item[2]
+        file_len = item[1]
+        file_pos = item[0]
+        is_file = file_name != "."
 
-def move_full(empty_indices, full_indices, file_number_indices):
-
-    #sort dictionary of files in reversed order
-    sorted_dict = dict(sorted(file_number_indices.items(), reverse=True))
-    print(f"Sorted dict: \n{sorted_dict}\n")
-
-    # iterate through files
-    for k, v in sorted_dict.items():
-        # what is the max available free space gap
-        max_gap = get_max_gap(empty_indices)
-        print(f"==> Looking for space for ID={k} of len {v}. Gap from {v} to {max_gap}.")
-        for i in range (v, max_gap + 1):
-            if i in empty_indices:
-                print(f"{k} => {i}")
-                print(f"Possible locations for {v}: {empty_indices[i]}\n")
-                break
-
-
-
+        if file_name == start_value:
+            if is_file:
+                found = False
+                item_2 = (-1, -1, -1)
+                index_found = -1
+                for j in range (0, len(data)):
+                    item_2 = data[j]
+                    is_gap = (item_2[2] == ".")
+                    gap_pos = item_2[0]
+                    gap_len = item_2[1]
+                    if is_gap and gap_len >= file_len and gap_pos < file_pos:
+                        found = True
+                        index_found = j
+                        break
+                if found:
+                    # same length
+                    if item_2[1] == file_len:
+                        data[index_found] = (data[index_found][0], data[index_found][1], item[2])
+                        data[i] = (file_pos, file_len, ".")
+                    elif item_2[1] > file_len:
+                        gap_len = data[index_found][1] - file_len
+                        gap_start = data[index_found][0] + file_len
+                        data[index_found] = (data[index_found][0], file_len, item[2])
+                        data[i] = (file_pos, file_len, ".")
+                        data.insert(index_found + 1, (gap_start, gap_len, '.'))
+                    break
+        else:
+            continue
 
 def compute_checksum(input_data) -> int:
     checksum = 0
 
-    for i in range(0, len(input_data)):
-        if input_data[i] == ".":
-            break
-        checksum += i * input_data[i]
+    for k, v in enumerate(input_data):
+        if v == ".":
+            continue
+        checksum += k * v
 
     return checksum
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
-    data, empty_indices, full_indices, file_number_indices = extract_data(input)
-
-    print(data)
-    print(empty_indices)
+    data, _, _ = extract_data(input)
 
     move(data)
     count = compute_checksum(data)
@@ -133,9 +134,12 @@ def execute_part_one(input: list[str]) -> None:
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    data, empty_indices, full_indices, file_number_indices = extract_data(input)
+    _, return_data, max_value = extract_data(input)
 
-    move_full(empty_indices, full_indices, file_number_indices)
-    # count = compute_checksum(data)
+    for i in range(max_value, -1, -1):
+        move_full(return_data, i)
+
+    checksum_data = convert_to_list(return_data)
+    count = compute_checksum(checksum_data)
 
     print(f"Solved 2: {count}")
