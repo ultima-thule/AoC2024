@@ -29,7 +29,7 @@ def parse_line(line):
 
     return p_x, p_y, v_x, v_y
 
-def next_position(position, vector, max_x, max_y, move_nr):
+def next_position(position, vector, max_x, max_y):
     x = position[0] + vector[0]
     y = position[1] + vector[1]
 
@@ -50,7 +50,7 @@ def next_position(position, vector, max_x, max_y, move_nr):
 def simulate(robot, repeat, max_x, max_y):
     (x, y) = robot[0]
     for i in range(0, repeat):
-        (x, y) = next_position((x, y), robot[1], max_x, max_y, i)
+        (x, y) = next_position((x, y), robot[1], max_x, max_y)
 
     return (x, y)
 
@@ -95,10 +95,37 @@ def execute_part_one(input: list[str]) -> None:
 
     print(f"Solved 1: {count}")
 
+def plot_robots(positions, max_x, max_y):
+    for x in range(0, max_x):
+        for y in range(0, max_y):
+            if (x, y) in positions:
+                print("X", end="")
+            else:
+                print(".", end="")
+        print()
 
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    # extract_data(input)
+    max_x = 101
+    max_y = 103
+
+    robots = extract_data(input)
+
+    while True:
+        ending_positions = defaultdict(int)
+        count += 1
+        new_robots = []
+        for r in robots: 
+            (x, y) = next_position(r[0], r[1], max_x, max_y)
+            ending_positions[(x,y)] += 1
+            new_robots.append([(x, y), r[1]])
+
+        robots = new_robots
+
+        if len(ending_positions) == len(robots):
+            break;
+
+    plot_robots (ending_positions, max_x, max_y)
 
     print(f"Solved 2: {count}")
