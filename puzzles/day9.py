@@ -1,10 +1,10 @@
 from typing import Any
 
-def extract_data(input: list[str]):
+def extract_data(input: list[str]) -> tuple[list[Any], list[Any], int]:
     '''Extract and transform text data'''
-    data: list[Any] = []
+    raw_data: list[Any] = []
+    aggr_data: list[Any] = []
     index = 0
-    return_data = []
     
     all_lines = ""
     for line in input:
@@ -15,22 +15,22 @@ def extract_data(input: list[str]):
         cnt = int(all_lines[i])
         for _ in range(0, cnt):
             if mod == 0:
-               data.append(index)
+               raw_data.append(index)
             else:
-                data.append('.')
+                raw_data.append('.')
 
         if cnt != 0:
-            return_data.append((len(data) - cnt, cnt, index if mod == 0 else "."))
+            aggr_data.append((len(raw_data) - cnt, cnt, index if mod == 0 else "."))
 
         # data on disk
         if mod == 0:
             index += 1
 
-    return data, return_data, index - 1
+    return raw_data, aggr_data, index - 1
 
-def move(input_data):
+def move(raw_data: list[Any]):
     
-    pointer_start, pointer_end = 0, len(input_data) - 1
+    pointer_start, pointer_end = 0, len(raw_data) - 1
 
     while True:
         # break if passed pointer_end
@@ -38,7 +38,7 @@ def move(input_data):
             break
 
         # move until an empty slot is reached
-        while input_data[pointer_start] != ".":
+        while raw_data[pointer_start] != ".":
             pointer_start += 1
 
         # break if passed pointer_end
@@ -47,7 +47,7 @@ def move(input_data):
 
         # empty slot reached
         # find first ID to be moved
-        while input_data[pointer_end] == ".":
+        while raw_data[pointer_end] == ".":
             pointer_end -= 1
 
         # break if passed pointer_end
@@ -55,56 +55,62 @@ def move(input_data):
             break
         
         # exchange chars
-        start = input_data[pointer_start]
-        end = input_data[pointer_end]
+        start = raw_data[pointer_start]
+        end = raw_data[pointer_end]
 
-        input_data[pointer_start] = end
-        input_data[pointer_end] = start
+        raw_data[pointer_start] = end
+        raw_data[pointer_end] = start
 
         # move pointers by one position
         pointer_start += 1
         pointer_end -= 1
 
-def convert_to_list(data):
+def convert_to_raw(aggr_data: list[Any]):
     ret = []
-    for item in data:
+    for item in aggr_data:
         for i in range (0, item[1]):
             ret.append(item[2])
     return ret
 
-def move_full(data, start_value):
+def move_full(data: list[Any], file: int) -> None:
     
     for i in range(len(data) - 1, -1, -1):
         item = data[i]
-        file_name = item[2]
-        file_len = item[1]
         file_pos = item[0]
+        file_len = item[1]
+        file_name = item[2]
         is_file = file_name != "."
 
-        if file_name == start_value:
+        if file_name == file:
             if is_file:
-                found = False
-                item_2 = (-1, -1, -1)
                 index_found = -1
+
                 for j in range (0, len(data)):
-                    item_2 = data[j]
-                    is_gap = (item_2[2] == ".")
-                    gap_pos = item_2[0]
-                    gap_len = item_2[1]
+                    gap = data[j]
+                    gap_pos = gap[0]
+                    gap_len = gap[1]
+                    is_gap = (gap[2] == ".")
+                    # search for gap no smaller than file and located left to file position
                     if is_gap and gap_len >= file_len and gap_pos < file_pos:
-                        found = True
                         index_found = j
                         break
-                if found:
-                    # same length
-                    if item_2[1] == file_len:
+
+                if index_found != -1:
+                    # gap and file are the same length
+                    if gap_len == file_len:
+                        # move file to gap
                         data[index_found] = (data[index_found][0], data[index_found][1], item[2])
+                        # clear file in old position
                         data[i] = (file_pos, file_len, ".")
-                    elif item_2[1] > file_len:
+                    # gap is bigger than a file
+                    elif gap_len > file_len:
                         gap_len = data[index_found][1] - file_len
                         gap_start = data[index_found][0] + file_len
+                        # move file to gap
                         data[index_found] = (data[index_found][0], file_len, item[2])
+                        # clear file in old position
                         data[i] = (file_pos, file_len, ".")
+                        # create new gap from leftovers
                         data.insert(index_found + 1, (gap_start, gap_len, '.'))
                     break
         else:
@@ -123,10 +129,10 @@ def compute_checksum(input_data) -> int:
 def execute_part_one(input: list[str]) -> None:
     count = 0
 
-    data, _, _ = extract_data(input)
+    raw_data, _, _ = extract_data(input)
 
-    move(data)
-    count = compute_checksum(data)
+    move(raw_data)
+    count = compute_checksum(raw_data)
 
     print(f"Solved 1: {count}")
 
@@ -134,12 +140,11 @@ def execute_part_one(input: list[str]) -> None:
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    _, return_data, max_value = extract_data(input)
+    _, aggr_data, max_value = extract_data(input)
 
     for i in range(max_value, -1, -1):
-        move_full(return_data, i)
+        move_full(aggr_data, i)
 
-    checksum_data = convert_to_list(return_data)
-    count = compute_checksum(checksum_data)
+    count = compute_checksum(convert_to_raw(aggr_data))
 
     print(f"Solved 2: {count}")
