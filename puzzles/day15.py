@@ -34,7 +34,7 @@ def extract_data(input: list[str]):
 
     max_row = row + 1
 
-    plot_data(maze_walls, maze_boxes, robot_start, max_row, max_col)
+    # plot_data(maze_walls, maze_boxes, robot_start, max_row, max_col)
 
     # print(f"Moves: {moves}")
     # print(f"Maze walls: {maze_walls}")
@@ -65,112 +65,42 @@ def get_next_pos(current_pos, move, max_row, max_col):
 
     return (row_move, col_move)
 
+def get_check(move, i, pos):
+    if move == ">" or move == "<":
+        return (pos[0], i)
+    if move == "^" or move == "v":
+        return (i, pos[1])
+
 def move_all_boxes(move, pos, maze_walls, maze_boxes, robot_pos, max_row, max_col):
+    ret_vectors = {">": (pos[0], pos[1] - 1), "<": (pos[0], pos[1] + 1), "^": (pos[0] + 1, pos[1]), "v": (pos[0] - 1, pos[1])}
+    range_vectors = {">": (pos[1], max_col, 1), "<": (pos[1], -1, -1), "^": (pos[0], -1, -1), "v": (pos[0], max_row, 1)}
+
     return_pos = pos
-    
-    # move right
-    if move == ">":
-        last_box = (pos[0], pos[1])
-        can_move = False
-        # check how much boxes are to the right
-        for i in range (pos[1], max_col):
-            check = (pos[0], i)
-            # print(f"Checking position {check}")
-            if (check in maze_boxes and maze_boxes[check] == True):
-                continue
-            # found free space
-            if check not in maze_walls:
-                can_move = True
-                last_box = check
-                # print(f"Boxes from {pos} to {last_box}, can be moved? {can_move}")
-                maze_boxes[pos] = False
-                maze_boxes[last_box] = True
-                return_pos = pos
-                break
-            else:
-                return_pos = (pos[0], pos[1]-1)
-                can_move = False
-                break
+    last_box = (pos[0], pos[1])
 
-    # move left
-    if move == "<":
-        last_box = (pos[0], pos[1])
-        can_move = False
-        # check how much boxes are to the left
-        for i in range (pos[1], -1, -1):
-            check = (pos[0], i)
-            # print(f"Checking position {check}")
-            if (check in maze_boxes and maze_boxes[check] == True):
-                # print(f"Check{check} is a box")
-                continue
-            # found free space
-            if check not in maze_walls:
-                # print(f"Check{check} is not a wall")
-                can_move = True
-                last_box = check
-                # print(f"Boxes from {pos} to {last_box}, can be moved? {can_move}")
-                maze_boxes[pos] = False
-                maze_boxes[last_box] = True
-                return_pos = pos
-                break
-            else:
-                # print(f"Check{check} is a wall")
-                return_pos = (pos[0], pos[1]+1)
-                can_move = False
-                break
-    
-    # move top
-    if move == "^":
-        last_box = (pos[0], pos[1])
-        can_move = False
-        # check how much boxes are to the top
-        for i in range (pos[0], -1, -1):
-            check = (i, pos[1])
-            # print(f"Checking position {check}")
-            if (check in maze_boxes and maze_boxes[check] == True):
-                continue
-            # found free space
-            if check not in maze_walls:
-                can_move = True
-                last_box = check
-                # print(f"Boxes from {pos} to {last_box}, can be moved? {can_move}")
-                maze_boxes[pos] = False
-                maze_boxes[last_box] = True
-                return_pos = pos
-                break
-            else:
-                return_pos = (pos[0]+1, pos[1])
-                can_move = False
-                break
+    ret_v = ret_vectors[move]
+    rg_v = range_vectors[move]
 
-    # move down
-    if move == "v":
-        last_box = (pos[0], pos[1])
-        can_move = False
-        # check how much boxes are to the bottom
-        for i in range (pos[0], max_row):
-            check = (i, pos[1])
-            # print(f"Checking position {check}")
-            if (check in maze_boxes and maze_boxes[check] == True):
-                continue
-            # found free space
-            if check not in maze_walls:
-                can_move = True
-                last_box = check
-                # print(f"Boxes from {pos} to {last_box}, can be moved? {can_move}")
-                maze_boxes[pos] = False
-                maze_boxes[last_box] = True
-                return_pos = pos
-                break
-            else:
-                return_pos = (pos[0]-1, pos[1])
-                can_move = False
-                break
+    # check how much boxes are to the right
+    for i in range (rg_v[0], rg_v[1], rg_v[2]):
+        check = get_check(move, i, pos)
+        # found next box
+        if (check in maze_boxes and maze_boxes[check] == True):
+            continue
+        # found free space
+        if check not in maze_walls:
+            last_box = check
+            maze_boxes[pos] = False
+            maze_boxes[last_box] = True
+            return_pos = pos
+            break
+        # found wall
+        else:
+            return_pos = (ret_v[0], ret_v[1])
+            break
 
     return return_pos
-
-            
-
+        
 def move_robot(maze_walls, maze_boxes, robot_pos, robot_start, moves, max_row, max_col):
     pos_curr = robot_start
     pos_prev = robot_start
@@ -209,7 +139,6 @@ def calculate_distance(maze_boxes):
     distance = 0
     for k, v in maze_boxes.items():
         if v:
-            # print(f"Key {k} value {v} GPS: {100*k[0] + k[1]}")
             distance += (100*k[0]) + k[1]
     return distance
 
