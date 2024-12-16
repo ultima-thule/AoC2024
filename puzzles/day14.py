@@ -1,6 +1,5 @@
 import re
 from collections import defaultdict
-from puzzles.day_14_algo import *
 
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
