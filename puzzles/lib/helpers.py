@@ -22,3 +22,26 @@ def print_grid(size_x, size_y, grid):
             else:
                 print(".", end="")
         print("")
+
+
+def plot_grid(size_x, size_y, grid):
+    '''Prints grid on the screen'''
+    for i in range(0, size_x):
+        for j in range(0, size_y):
+            if (i,j) in grid:
+                print("#", end="")
+            else:
+                print(".", end="")
+        print("")
+
+def plot_grid_path(size_x, size_y, grid, visited):
+    '''Prints grid on the screen'''
+    for i in range(0, size_x):
+        for j in range(0, size_y):
+            if (i,j) in grid:
+                print("#", end="")
+            elif (i,j) in visited:
+                print("O", end="")
+            else:
+                print(".", end="")
+        print("")

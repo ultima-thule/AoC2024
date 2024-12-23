@@ -1,4 +1,38 @@
-****** DAY 13 ******
+****** DAY 18 ******
 --- Executing part 1 ---
-94*a + 22*b = 8400
-34*a + 67*b = 5400
+...#...
+..#..#.
+.#..#..
+...#..#
+..#..#.
+.#..#..
+#.#....
+
+=> Queue: deque([(0, 0)])
+(0, 0) Neighbours: {(1, 0): True, (0, 1): True}
+Neighbours: {(1, 0): True, (0, 1): True}
+Checking (1, 0): 9223372036854775807 vs 9223372036854775807
+Checking (0, 1): 9223372036854775807 vs 9223372036854775807
+Selected min: (0, 1)
+Neighbours: {(1, 1): True, (0, 2): True}
+
+=> Queue: deque([(0, 1)])
+(0, 1) Neighbours: {(1, 1): True, (0, 2): True}
+Neighbours: {(1, 1): True, (0, 2): True}
+Checking (1, 1): 9223372036854775807 vs 9223372036854775807
+Checking (0, 2): 9223372036854775807 vs 9223372036854775807
+Selected min: (0, 2)
+Neighbours: {}
+
+=> Queue: deque([(0, 2)])
+(0, 2) Neighbours: {}
+Neighbours: {}
+Selected min: (-1, -1)
+Distances: defaultdict(<function bfs.<locals>.<lambda> at 0x000001CC5CA69760>, {(0, 0): 0, (1, 0): 9223372036854775807, (0, 1): 9223372036854775807, (1, 1): 9223372036854775807, (0, 2): 9223372036854775807})
+Solved 1: 0
+--- Solved in 0.00800323486328125 seconds ---
+
+--- Executing part 2 ---
+Solved 2: 0
+--- Solved in 0.0 seconds ---
+
