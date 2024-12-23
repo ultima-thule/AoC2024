@@ -4,85 +4,60 @@ from itertools import chain, combinations
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
     pairs = set()
-    vertices = set()
-    adjacent = {}
+    adjacent = defaultdict(list)
 
     for line in input:
         tmp = line.strip().split("-")
         pairs.add((tmp[0], tmp[1]))
-        vertices.add(tmp[1])
-        vertices.add(tmp[0])
-    
-    for v in vertices:
-        adjacent[v] = []
 
     for p in pairs:
         adjacent[p[0]].append(p[1])
         adjacent[p[1]].append(p[0])
 
-    # print(f"Pairs: {pairs}")
-    # print(f"vertices: {vertices}")
-    # print(f"adjacent: {adjacent}")
-
-    return pairs, vertices, adjacent
+    return pairs, adjacent
 
 def execute_part_one(input: list[str]) -> None:
-    count = 0
-
-    pairs, vertices, adjacent = extract_data(input)
+    pairs, adjacent = extract_data(input)
 
     found = set()
 
-    for k, v in adjacent.items():
-        # print(f"Adj: {k}, {v}")
+    for item_a, v in adjacent.items():
         for i in range(0, len(v)):
             item_b = v[i]
-            # print(f"{k} {item_b}")
-            for j in range (i + +1, len(v)):
+            for j in range (i + 1, len(v)):
                 item_c = v[j]
                 if (item_b, item_c) in pairs or (item_c, item_b) in pairs:
-                    # print(f"Found! {k}, {item_b}, {item_c}")
-                    lst = []
-                    lst.append(k)
-                    lst.append(item_b)
-                    lst.append(item_c)
-                    lst.sort()
-                    res = ','.join(lst)
-                    if k.startswith("t") or item_b.startswith("t") or item_c.startswith("t"):
-                        found.add(res)
-
-    # print(f"\nTotal: {len(found)}")
+                    if item_a.startswith("t") or item_b.startswith("t") or item_c.startswith("t"):
+                        found.add(','.join(sorted([item_a, item_b, item_c])))
    
     print(f"Solved 1: {len(found)}")
 
 
 def execute_part_two(input: list[str]) -> None:
-    count = 0
+    _, adjacent = extract_data(input)
 
-    pairs, vertices, adjacent = extract_data(input)
+    vertices_collections = list()
 
-    lens = list()
-
+    # make unified vertices set
     for k,v in adjacent.items():
         s = set(v)
         s.add(k)
-        lens.append(s)
+        vertices_collections.append(s)
 
-    inter = defaultdict(int)
+    intersections = defaultdict(int)
 
-    for i in range(0, len(lens)):
-        item_a = lens[i]
-        for j in range (i+1, len(lens)):
-            item_b = lens[j]
+    # compare all vertices collections with each other
+    for i in range(0, len(vertices_collections)):
+        item_a = vertices_collections[i]
+        for j in range (i+1, len(vertices_collections)):
+            item_b = vertices_collections[j]
+            # get intersection
             tmp = item_a & item_b
-            inter[",".join(sorted(tmp))] += 1
+            # increase counter for the non-empty intersection result
+            if len(tmp) > 0:
+                intersections[",".join(sorted(tmp))] += 1
 
-    inv_map = defaultdict(list)
-    for k, v in inter.items():
-        inv_map[v].append(k)
+    # select intersection with highest count
+    sorted_intersections = {k: v for k, v in sorted(intersections.items(), key=lambda item: item[1])}
 
-    # print(f"\nLens: {lens}")
-    # print(f"\nInter: {inter}")
-    # print(f"\ninv_map: {inv_map}")
-
-    print(f"Solved 2: {inv_map[list(inv_map)[-1]]}")
+    print (f"Solved 2: {list(sorted_intersections)[-1]}")
