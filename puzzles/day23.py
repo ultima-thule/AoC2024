@@ -1,5 +1,4 @@
 from collections import defaultdict
-from itertools import chain, combinations
 
 def extract_data(input: list[str]):
     '''Extract and transform text data'''
