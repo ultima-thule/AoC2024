@@ -51,14 +51,38 @@ def execute_part_one(input: list[str]) -> None:
                     if k.startswith("t") or item_b.startswith("t") or item_c.startswith("t"):
                         found.add(res)
 
-    print(f"\nTotal: {len(found)}")
+    # print(f"\nTotal: {len(found)}")
    
-    print(f"Solved 1: {count}")
+    print(f"Solved 1: {len(found)}")
 
 
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
-    comps = extract_data(input)
+    pairs, vertices, adjacent = extract_data(input)
 
-    print(f"Solved 2: {count}")
+    lens = list()
+
+    for k,v in adjacent.items():
+        s = set(v)
+        s.add(k)
+        lens.append(s)
+
+    inter = defaultdict(int)
+
+    for i in range(0, len(lens)):
+        item_a = lens[i]
+        for j in range (i+1, len(lens)):
+            item_b = lens[j]
+            tmp = item_a & item_b
+            inter[",".join(sorted(tmp))] += 1
+
+    inv_map = defaultdict(list)
+    for k, v in inter.items():
+        inv_map[v].append(k)
+
+    # print(f"\nLens: {lens}")
+    # print(f"\nInter: {inter}")
+    # print(f"\ninv_map: {inv_map}")
+
+    print(f"Solved 2: {inv_map[list(inv_map)[-1]]}")
