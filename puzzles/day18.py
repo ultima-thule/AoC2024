@@ -7,7 +7,8 @@ def extract_data(input: list[str]):
     
     for i in range(0, len(input)):
         line = input[i].strip()
-        data.append((int(line[2]), int(line[0]))) 
+        tmp = line.split(",")
+        data.append((int(tmp[0]), int(tmp[1]))) 
 
     # print(f"Incoming byte positions: {data}")
 
@@ -27,10 +28,10 @@ def get_neighbours(point, max_row, max_col, walls, visited):
 
     for v in vectors:
         new_point = (point[0] + v[0], point[1] + v[1])
-        if is_valid (new_point, max_row, max_col, walls) and visited[new_point] == False:
+        if is_valid (new_point, max_row, max_col, walls) and not visited[new_point[0]][new_point[1]]:
             data[new_point] = True
 
-    print(f"Neighbours: {data}")
+    # print(f"Neighbours: {data}")
 
     return data
 
@@ -48,7 +49,6 @@ def get_minimum_vertex(distances, adjacent):
     print(f"Selected min: {min_point}")
 
     return min_point
-
 
 def bfs(s, walls, max_row, max_col):
   
@@ -147,20 +147,56 @@ def generate_walls(bytes, iterations):
 
 #         # print_solution(distance)
 
+def find_shortest_path(walls, size_x, size_y, point_x, point_y, end_x, end_y, min_dist, dist, visited):
+    # reached the end point, set minimum distance
+    if end_x == point_x and end_y == point_y:
+        min_dist = min(dist, min_dist)
+        return min_dist
+
+    # mark point as visited
+    visited[point_x][point_y] = True
+
+    # get all valid neighbours
+    # neighbours = get_neighbours((point_x, point_y), size_x, size_y, walls, visited)
+
+    if is_valid ((point_x + 1, point_y), size_x, size_y, walls) and (not visited[point_x + 1][point_y]):
+        min_dist = find_shortest_path(walls, size_x, size_y, point_x + 1, point_y, end_x, end_y, min_dist, dist + 1, visited)
+    if is_valid ((point_x - 1, point_y), size_x, size_y, walls) and (not visited[point_x - 1][point_y]):
+        min_dist = find_shortest_path(walls, size_x, size_y, point_x - 1, point_y, end_x, end_y, min_dist, dist + 1, visited)
+    if is_valid ((point_x, point_y + 1), size_x, size_y, walls) and (not visited[point_x][point_y + 1]):
+        min_dist = find_shortest_path(walls, size_x, size_y, point_x, point_y + 1, end_x, end_y, min_dist, dist + 1, visited)
+    if is_valid ((point_x, point_y - 1), size_x, size_y, walls) and (not visited[point_x][point_y - 1]):
+        min_dist = find_shortest_path(walls, size_x, size_y, point_x, point_y - 1, end_x, end_y, min_dist, dist + 1, visited)
+
+    visited[point_x][point_y] = False
+    return min_dist
+
+
 def execute_part_one(input: list[str]) -> None:
     count = 0
+    size_x = 71
+    size_y = 71
+    bytes_num = 1024
 
     data = extract_data(input)
-    walls = generate_walls(data, 12)
-    plot_grid(7, 7, walls)
+    walls = generate_walls(data, bytes_num)
+    plot_grid(size_x, size_y, walls)
+
+    visited = []
+    for i in range(size_x):
+        visited.append([None for j in range(size_y)])
+
+    path_len = find_shortest_path(walls, size_x, size_y, 0, 0, size_x -1, size_y - 1, sys.maxsize, 0, visited)
+    # print(visited)
+
 
     # dijkstra((0,0), walls, 7, 7)
 
-    visited = bfs((0,0), walls, 7, 7)
+    # visited = bfs((0,0), walls, 7, 7)
 
     # plot_grid_path(7, 7, walls, visited)
 
-    print(f"Solved 1: {count}")
+    print(f"Solved 1: {path_len - 2}")
 
 
 def execute_part_two(input: list[str]) -> None:
