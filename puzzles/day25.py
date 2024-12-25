@@ -37,9 +37,6 @@ def extract_data(input: list[str]):
     if len(keys[0]) == 0:
         keys = keys[1:]
 
-    # print(f"Keys: {keys}")
-    # print(f"Locks: {locks}")
-
     return keys, locks
 
 def to_pins(matrix):
@@ -47,9 +44,7 @@ def to_pins(matrix):
 
     for m in matrix:
         counters = [0] * len(m[0])
-        # print(f"M: {m}")
         for r in m:
-            # print(f"row: {r}")
             for j in range(len(r)):
                 if r[j] == "#":
                     counters[j] += 1
