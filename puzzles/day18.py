@@ -2,6 +2,11 @@ from collections import defaultdict, deque
 from puzzles.lib.helpers import *
 import sys
 
+size_x = 71
+size_y = 71
+bytes_num = 1024
+
+
 def extract_data(input: list[str]):
     data = []
     
@@ -48,7 +53,10 @@ def get_valid_neighbours(point, size_x, size_y, walls):
 def generate_walls(bytes, iterations):
     walls = {}
     for i in range(iterations):
+        # print(bytes[i])
         walls[bytes[i]] = True
+
+    # print(f"Walls count: {len(walls)}")
 
     return walls
 
@@ -103,10 +111,6 @@ def find_shortest_path_bfs(walls, size_x, size_y):
     return -1
 
 def execute_part_one(input: list[str]) -> None:
-    size_x = 71
-    size_y = 71
-    bytes_num = 1024
-
     data = extract_data(input)
     walls = generate_walls(data, bytes_num)
     # plot_grid(size_x, size_y, walls)
@@ -118,8 +122,21 @@ def execute_part_one(input: list[str]) -> None:
 
 
 def execute_part_two(input: list[str]) -> None:
-    count = 0
-
     data = extract_data(input)
+    max_fall = len(data)
 
-    print(f"Solved 2: {count}")
+    byte_fall = 1
+    corr = (0,0)
+
+    while True and bytes_num + byte_fall <= max_fall:
+        walls = generate_walls(data, bytes_num + byte_fall)
+
+        path_len = find_shortest_path_bfs(walls, size_x, size_y)
+
+        if path_len == -1:
+            corr = data[bytes_num + byte_fall-1]
+            break
+        
+        byte_fall += 1
+
+    print(f"Solved 2:  {corr[1]},{corr[0]}")
