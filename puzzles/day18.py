@@ -8,16 +8,16 @@ def extract_data(input: list[str]):
     for i in range(0, len(input)):
         line = input[i].strip()
         tmp = line.split(",")
-        data.append((int(tmp[0]), int(tmp[1]))) 
+        data.append((int(tmp[1]), int(tmp[0]))) 
 
     # print(f"Incoming byte positions: {data}")
 
     return data
 
-def is_valid(point, max_row, max_col, walls):
-    if point[0] < 0 or point[0] >= max_row:
+def is_valid(point, max_x, max_y, walls):
+    if point[0] < 0 or point[0] > max_x:
         return False
-    if point[1] < 0 or point[1] >= max_col:
+    if point[1] < 0 or point[1] > max_y:
         return False
     return point not in walls
 
@@ -29,6 +29,20 @@ def get_neighbours(point, max_row, max_col, walls, visited):
     for v in vectors:
         new_point = (point[0] + v[0], point[1] + v[1])
         if is_valid (new_point, max_row, max_col, walls) and not visited[new_point[0]][new_point[1]]:
+            data[new_point] = True
+
+    # print(f"Neighbours: {data}")
+
+    return data
+
+def get_neighbours_2(point, max_row, max_col, walls):
+    data = {}
+
+    vectors = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    for v in vectors:
+        new_point = (point[0] + v[0], point[1] + v[1])
+        if is_valid (new_point, max_row, max_col, walls):
             data[new_point] = True
 
     # print(f"Neighbours: {data}")
@@ -95,59 +109,14 @@ def bfs(s, walls, max_row, max_col):
 
 def generate_walls(bytes, iterations):
     walls = {}
-    for i in range(0, iterations + 1):
+    for i in range(iterations):
         walls[bytes[i]] = True
-    
-    # print(f"Walls: {walls}")
 
     return walls
 
-# def get_neighbours(point, max_row, max_col, walls):
-#     data = []
-
-#     vectors = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-#     for v in vectors:
-#         new_point = (point[0] + v[0], point[1] + v[1])
-#         if is_valid (new_point, max_row, max_col, walls):
-#             data.append(new_point)
-
-#     return data
 
 
-# def dijkstra(s, walls, max_row, max_col):
-
-#         distance = defaultdict(lambda: sys.maxsize)
-#         distance[s] = 0
-#         shortest_path = defaultdict(bool)
-#         # Create a queue for BFS
-#         q = deque()
-
-#         adj = get_neighbours(s, max_row, max_col, walls)
-
-#         for _ in range(0, (max_row+1)*(max_col+1)):
-
-#             # Pick the minimum distance vertex from
-#             # the set of vertices not yet processed.
-#             # x is always equal to src in first iteration
-#             x = min_distance(distance, shortest_path, adj)
-
-#             # Put the minimum distance vertex in the
-#             # shortest path tree
-#             shortest_path[x] = True
-
-#             # Update dist value of the adjacent vertices
-#             # of the picked vertex only if the current
-#             # distance is greater than new distance and
-#             # the vertex in not in the shortest path tree
-#             adj = get_neighbours(x, max_row, max_col, walls)
-#             for y in adj:
-#                 if shortest_path[y] == False and distance[y] > distance[x] + 1:
-#                     distance[y] = distance[x] + 1
-
-#         # print_solution(distance)
-
-def find_shortest_path(walls, size_x, size_y, point_x, point_y, end_x, end_y, min_dist, dist, visited):
+def find_shortest_path_dfs(walls, size_x, size_y, point_x, point_y, end_x, end_y, min_dist, dist, visited):
     # reached the end point, set minimum distance
     if end_x == point_x and end_y == point_y:
         min_dist = min(dist, min_dist)
@@ -160,17 +129,48 @@ def find_shortest_path(walls, size_x, size_y, point_x, point_y, end_x, end_y, mi
     # neighbours = get_neighbours((point_x, point_y), size_x, size_y, walls, visited)
 
     if is_valid ((point_x + 1, point_y), size_x, size_y, walls) and (not visited[point_x + 1][point_y]):
-        min_dist = find_shortest_path(walls, size_x, size_y, point_x + 1, point_y, end_x, end_y, min_dist, dist + 1, visited)
+        min_dist = find_shortest_path_dfs(walls, size_x, size_y, point_x + 1, point_y, end_x, end_y, min_dist, dist + 1, visited)
     if is_valid ((point_x - 1, point_y), size_x, size_y, walls) and (not visited[point_x - 1][point_y]):
-        min_dist = find_shortest_path(walls, size_x, size_y, point_x - 1, point_y, end_x, end_y, min_dist, dist + 1, visited)
+        min_dist = find_shortest_path_dfs(walls, size_x, size_y, point_x - 1, point_y, end_x, end_y, min_dist, dist + 1, visited)
     if is_valid ((point_x, point_y + 1), size_x, size_y, walls) and (not visited[point_x][point_y + 1]):
-        min_dist = find_shortest_path(walls, size_x, size_y, point_x, point_y + 1, end_x, end_y, min_dist, dist + 1, visited)
+        min_dist = find_shortest_path_dfs(walls, size_x, size_y, point_x, point_y + 1, end_x, end_y, min_dist, dist + 1, visited)
     if is_valid ((point_x, point_y - 1), size_x, size_y, walls) and (not visited[point_x][point_y - 1]):
-        min_dist = find_shortest_path(walls, size_x, size_y, point_x, point_y - 1, end_x, end_y, min_dist, dist + 1, visited)
+        min_dist = find_shortest_path_dfs(walls, size_x, size_y, point_x, point_y - 1, end_x, end_y, min_dist, dist + 1, visited)
 
     visited[point_x][point_y] = False
     return min_dist
 
+def find_shortest_path_bfs(walls, size_x, size_y):
+    q = deque()
+    q.append((0, 0, 0))
+
+    visited = set()
+
+    while q:
+        x, y, length = q.popleft()
+        # print(f"Popping: {x},{y}")
+        
+        # skip if already visited
+        if (x, y) in visited:
+            continue
+
+        # mark point as visited
+        visited.add((x, y))
+
+        # reached the end point, return length
+        if (x, y) == (size_x-1, size_y-1):
+            return length
+
+        # get all possible neighbours
+        vectors = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+        for vx, vy in vectors:
+            new_point = (x + vx, y + vy)
+            # if neighbour within range, append to end of queue
+            if is_valid (new_point, size_x-1, size_y-1, walls):
+                q.append((new_point[0], new_point[1], length + 1))
+    
+    return -1
 
 def execute_part_one(input: list[str]) -> None:
     count = 0
@@ -186,7 +186,8 @@ def execute_part_one(input: list[str]) -> None:
     for i in range(size_x):
         visited.append([None for j in range(size_y)])
 
-    path_len = find_shortest_path(walls, size_x, size_y, 0, 0, size_x -1, size_y - 1, sys.maxsize, 0, visited)
+    # path_len = find_shortest_path_dfs(walls, size_x, size_y, 0, 0, size_x -1, size_y - 1, sys.maxsize, 0, visited)
+    path_len = find_shortest_path_bfs(walls, size_x, size_y)
     # print(visited)
 
 
@@ -196,7 +197,7 @@ def execute_part_one(input: list[str]) -> None:
 
     # plot_grid_path(7, 7, walls, visited)
 
-    print(f"Solved 1: {path_len - 2}")
+    print(f"Solved 1: {path_len}")
 
 
 def execute_part_two(input: list[str]) -> None:
