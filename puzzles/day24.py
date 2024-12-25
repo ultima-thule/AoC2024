@@ -34,15 +34,17 @@ def calc(oper1, oper2, action):
     if action == "XOR":
         return oper1 ^ oper2
 
-def decode_bits(gates):
-    new_dict = {k: v for k, v in gates.items() if k.startswith("z")}
+def decode_bits(gates, letter):
+    new_dict = {k: v for k, v in gates.items() if k.startswith(letter)}
     tmp = dict(sorted(new_dict.items(), reverse = True))
 
     binary = ""
     for k, v in tmp.items():
         binary += str(int(v))
 
-    return int(binary, 2)
+    # print(f"{letter}: {binary} => {int(binary, 2)}")
+
+    return binary, int(binary, 2)
 
 def simulate(gates, conn):
 
@@ -66,20 +68,39 @@ def simulate(gates, conn):
 
     # print(f"Results: {gates}")
 
-    return decode_bits(gates)
+    x_bin, x = decode_bits(gates, "x")
+    y_bin, y = decode_bits(gates, "y")
+    z_bin, z = decode_bits(gates, "z")
+
+    return x, y, z, x_bin, y_bin, z_bin
 
 def execute_part_one(input: list[str]) -> None:
-    count = 0
 
     gates, conn =  extract_data(input)
-    count = simulate(gates, conn)
+    x, y, z, _,  _, _ = simulate(gates, conn)
 
-    print(f"Solved 1: {count}")
+    print(f"Solved 1: {z}")
 
 
 def execute_part_two(input: list[str]) -> None:
     count = 0
 
     gates, conn =  extract_data(input)
+    x, y, z, x_bin, y_bin, z_bin = simulate(gates, conn)
+
+    expected = x & y
+    exp_str = f"{expected:b}"
+    print(f"Expected {exp_str}")
+    print(f"Current- {z_bin}")
+
+    diff = x + y - z
+
+    print(f"Difference: {diff:b}")
+    
+    diff_str = f"{diff:b}"
+    for i in range(len(diff_str)-1, -1, -1):
+        # print(f"{exp_str[i]}-{curr_str[i]}")
+        if diff_str[i] != "0":
+            print(f"Wrong bit at pos {i}")
 
     print(f"Solved 2: {count}")
